@@ -14,7 +14,7 @@ export class VersionsFormComponent implements OnInit {
   latestVersion: string;
 
   constructor(private es: ElectronService) {
-    // es.ipcRenderer.send('get-supported-versions');
+    this.es.ipcRenderer.send('get-supported-versions');
   }
 
   ngOnInit() {

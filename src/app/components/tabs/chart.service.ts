@@ -6,11 +6,6 @@ import { MessageService } from '../../message.service';
 import { MODEL_CHANGED } from '../../constants';
 import { ElectronService } from '../../providers/electron.service';
 
-const BarRankChart = require('vizabi-barrankchart');
-const BubbleChart = require('vizabi-bubblechart');
-const BubbleMap = require('vizabi-bubblemap');
-const LineChart = require('vizabi-linechart');
-const MountainChart = require('vizabi-mountainchart');
 const configSg = {
   BarRankChart: require('../../../../node_modules/vizabi-config-systema_globalis/dist/BarRankChart.json'),
   BubbleChart: require('../../../../node_modules/vizabi-config-systema_globalis/dist/BubbleChart.json'),
@@ -18,30 +13,28 @@ const configSg = {
   LineChart: require('../../../../node_modules/vizabi-config-systema_globalis/dist/LineChart.json'),
   MountainChart: require('../../../../node_modules/vizabi-config-systema_globalis/dist/MountainChart.json')
 };
-/*const ddfCsvReaderLib = require('../../../lib/vizabi-ddfcsv-reader-node');
-const BackendFileReader = ddfCsvReaderLib.BackendFileReader;*/
 
 @Injectable()
 export class ChartService {
-  public isDevMode = false;
-  public ddfFolderDescriptor: DdfFolderDescriptor;
-  public currentTab: TabModel;
+  isDevMode = false;
+  ddfFolderDescriptor: DdfFolderDescriptor;
+  currentTab: TabModel;
 
-  public static getFirst(arr: any[]): any {
+  static getFirst(arr: any[]): any {
     return arr && arr.length > 0 ? arr[0] : null;
   }
 
-  public constructor(private messageService: MessageService, private es: ElectronService) {
+  constructor(private messageService: MessageService, private es: ElectronService) {
     this.ddfFolderDescriptor = new DdfFolderDescriptor();
   }
 
-  public log(message?: any, ...optionalParams: any[]): void {
+  log(message?: any, ...optionalParams: any[]) {
     if (this.isDevMode) {
       console.log(message, ...optionalParams);
     }
   }
 
-  public initTab(tabsModel: TabModel[], chartType: string = ''): void {
+  initTab(tabsModel: TabModel[], chartType: string = '') {
     const newTab = new TabModel(chartType, true);
 
     tabsModel.forEach((tab: TabModel) => tab.active = false);
@@ -50,7 +43,7 @@ export class ChartService {
     this.messageService.sendMessage(MODEL_CHANGED);
   }
 
-  public setReaderDefaults(tab: TabModel | TabDataDescriptor): void {
+  setReaderDefaults(tab: TabModel | TabDataDescriptor) {
     const BackendFileReader = this.es.ddfCsvReader.BackendFileReader;
     tab.readerModuleObject = this.es.ddfCsvReader;
     tab.readerGetMethod = 'getDDFCsvReaderObject';
@@ -58,7 +51,7 @@ export class ChartService {
     tab.readerName = 'ddf1-csv-ext';
   }
 
-  public newChart(tab: TabModel, tabDataDescriptor: TabDataDescriptor, isDefaults: boolean = true): string {
+  newChart(tab: TabModel, tabDataDescriptor: TabDataDescriptor, isDefaults: boolean = true): string {
     if (isDefaults) {
       this.ddfFolderDescriptor.defaults();
     }
@@ -76,8 +69,6 @@ export class ChartService {
     if (ddfFolderDescriptor.error) {
       return ddfFolderDescriptor.error;
     }
-
-    // ////////////////////////////
 
     config.data = {
       reader: 'ddf1-csv-ext',
@@ -104,7 +95,7 @@ export class ChartService {
     return null;
   }
 
-  public newSimpleChart(tabsModel: TabModel[], properties: any, onChartReady ?: Function): void {
+  newSimpleChart(tabsModel: TabModel[], properties: any, onChartReady ?: Function) {
     const newTab = new TabModel(properties.chartType, true);
 
     this.es.fs.stat(properties.path, (err: any, stats: any) => {
@@ -138,15 +129,15 @@ export class ChartService {
     });
   }
 
-  public getCurrentTab(tabsModel: TabModel[]): TabModel {
+  getCurrentTab(tabsModel: TabModel[]): TabModel {
     return tabsModel.find((tab: TabModel) => tab.active);
   }
 
-  public areChartsAvailable(tabsModel: TabModel[]): boolean {
+  areChartsAvailable(tabsModel: TabModel[]): boolean {
     return tabsModel.filter((tab: TabModel) => tab.chartType).length > 0;
   }
 
-  public getLastModifiedForFile(filePath: string): number | null {
+  getLastModifiedForFile(filePath: string): number | null {
     try {
       const stats = this.es.fs.statSync(filePath);
 

@@ -31,23 +31,23 @@ import { ElectronService } from '../../providers/electron.service';
   templateUrl: './home.component.html'
 })
 export class HomeComponent implements OnInit {
-  public tabsModel: TabModel[] = [];
-  public isMenuOpened = false;
-  public menuComponent: Menu;
-  public menuActions: any = {};
+  tabsModel: TabModel[] = [];
+  isMenuOpened = false;
+  menuComponent: Menu;
+  menuActions: any = {};
 
-  @ViewChild('ddfModal') public ddfModal: ModalDirective;
-  @ViewChild('additionalDataModal') public additionalDataModal: ModalDirective;
-  @ViewChild('presetsModal') public presetsModal: ModalDirective;
-  @ViewChild('versionsModal') public versionsModal: ModalDirective;
-  @ViewChild('validationModal') public validationModal: ModalDirective;
-  @ViewChild('ddfDatasetConfigModal') public ddfDatasetConfigModal: ModalDirective;
-  @ViewChild('csvConfigModal') public csvConfigModal: ModalDirective;
-  @ViewChild('additionalCsvConfigModal') public additionalCsvConfigModal: ModalDirective;
-  @ViewChild('addDdfFolder') public addDdfFolderInput: ElementRef;
-  public tabsDisabled = false;
+  @ViewChild('ddfModal') ddfModal: ModalDirective;
+  @ViewChild('additionalDataModal') additionalDataModal: ModalDirective;
+  @ViewChild('presetsModal') presetsModal: ModalDirective;
+  @ViewChild('versionsModal') versionsModal: ModalDirective;
+  @ViewChild('validationModal') validationModal: ModalDirective;
+  @ViewChild('ddfDatasetConfigModal') ddfDatasetConfigModal: ModalDirective;
+  @ViewChild('csvConfigModal') csvConfigModal: ModalDirective;
+  @ViewChild('additionalCsvConfigModal') additionalCsvConfigModal: ModalDirective;
+  @ViewChild('addDdfFolder') addDdfFolderInput: ElementRef;
+  tabsDisabled = false;
 
-  public constructor(
+  constructor(
     public chartService: ChartService,
     private viewContainerRef: ViewContainerRef,
     private messageService: MessageService,
@@ -60,7 +60,7 @@ export class HomeComponent implements OnInit {
     initMenuComponent(this, es);
   }
 
-  public ngOnInit(): void {
+  ngOnInit() {
     this.messageService.getMessage()
       .subscribe((event: any) => {
         if (event.message === OPEN_DDF_FOLDER_ACTION) {
@@ -121,11 +121,11 @@ export class HomeComponent implements OnInit {
     this.dataItemsAvailability();
   }
 
-  public onMenuItemSelected(methodName: string): void {
+  onMenuItemSelected(methodName: string) {
     this.menuActions[methodName]();
   }
 
-  public dataItemsAvailability(): void {
+  dataItemsAvailability() {
     /*const currentTab = this.getCurrentTab();
     const isItemEnabled = !!currentTab && !!currentTab.chartType;
     const fileMenu = this.menuComponent.items[0].submenu;
@@ -144,15 +144,15 @@ export class HomeComponent implements OnInit {
     saveAllTabs.enabled = this.areChartsAvailable();*/
   }
 
-  public areChartsAvailable(): boolean {
+  areChartsAvailable(): boolean {
     return this.chartService.areChartsAvailable(this.tabsModel);
   }
 
-  public getCurrentTab(): TabModel {
+  getCurrentTab(): TabModel {
     return this.chartService.getCurrentTab(this.tabsModel);
   }
 
-  public appMainClickHandler(event: any): void {
+  appMainClickHandler(event: any) {
     if (this.isMenuOpened) {
       const elementTarget = event.target;
       const elementMenu = document.getElementsByClassName('btn-group')[0];
@@ -165,34 +165,34 @@ export class HomeComponent implements OnInit {
     this.messageService.sendMessage(CLEAR_EDITABLE_TABS_ACTION, event);
   }
 
-  public switchMenu(): void {
+  switchMenu() {
     if (!this.tabsDisabled) {
       this.isMenuOpened = !this.isMenuOpened;
     }
   }
 
-  public versionsFormComplete(version?: string): void {
+  versionsFormComplete(version?: string) {
     if (version) {
       this.es.ipcRenderer.send('request-custom-update', version);
       this.versionsModal.hide();
     }
   }
 
-  public onValidationModalHide(): void {
+  onValidationModalHide() {
     this.messageService.sendMessage(ABANDON_VALIDATION);
     this.messageService.sendMessage(CLEAR_VALIDATION_FORM);
   }
 
-  public validationFormComplete(): void {
+  validationFormComplete() {
     this.messageService.sendMessage(ABANDON_VALIDATION);
     this.validationModal.hide();
   }
 
-  public onChartCreated(): void {
+  onChartCreated() {
     this.dataItemsAvailability();
   }
 
-  public addData(data: any): void {
+  addData(data: any) {
     const currentTab = this.getCurrentTab();
     const pathDoesNotExist = isEmpty(currentTab.additionalData.filter((item: any) => item.path === data.path));
 
@@ -211,7 +211,7 @@ export class HomeComponent implements OnInit {
     this.es.ipcRenderer.send('modify-chart', `user data was added to ${currentTab.chartType}`);
   }
 
-  public onDdfExtFolderChanged(filePaths: string[]): void {
+  onDdfExtFolderChanged(filePaths: string[]) {
     const firstFilePath = ChartService.getFirst(filePaths);
 
     if (firstFilePath) {
@@ -220,7 +220,7 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  public doOpenCompleted(event: any, parameters: any): void {
+  doOpenCompleted(event: any, parameters: any) {
     this.tabsDisabled = true;
 
     const subscription: Subscription = this.messageService.getMessage().subscribe((tabEvent: any) => {
@@ -250,7 +250,7 @@ export class HomeComponent implements OnInit {
     this.es.ipcRenderer.send('menu', 'new chart was opened');
   }
 
-  public doOpenAllCompleted(event: any, tabsDescriptor: any): void {
+  doOpenAllCompleted(event: any, tabsDescriptor: any) {
     this.tabsDisabled = true;
 
     const actions = tabsDescriptor.map((tabDescriptor: any) => (onChartReady: Function) => {
@@ -288,7 +288,7 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  public completeCsvConfigForm(event: any): void {
+  completeCsvConfigForm(event: any) {
     this.csvConfigModal.hide();
 
     if (event) {
@@ -300,7 +300,7 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  public additionalCsvConfigFormComplete(data: any): void {
+  additionalCsvConfigFormComplete(data: any) {
     this.additionalCsvConfigModal.hide();
 
     if (data) {
@@ -308,16 +308,16 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  public onAdditionalCsvConfigModalShown(): void {
+  onAdditionalCsvConfigModalShown() {
     this.chartService.currentTab = this.getCurrentTab();
   }
 
-  public doDetectChanges(): void {
+  doDetectChanges() {
     this.dataItemsAvailability();
     this.ref.detectChanges();
   }
 
-  public onTabReady(): void {
+  onTabReady() {
     this.messageService.sendMessage(TAB_READY_ACTION);
   }
 }

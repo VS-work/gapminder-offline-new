@@ -1,6 +1,6 @@
 {
-  "name": "angular-electron",
-  "version": "4.0.0",
+  "name": "gapminder-offline",
+  "version": "3.0.0",
   "description": "Angular 6 with Electron (Typescript + SASS + Hot Reload)",
   "homepage": "https://github.com/maximegris/angular-electron",
   "author": {
@@ -38,26 +38,17 @@
     "async-waterfall": "0.1.5",
     "csv-parse": "2.0.0",
     "ddf-validation": "1.17.0",
-    "electron-easy-updater": "^0.4.10",
-    "fs-extra": "^6.0.1",
-    "is-online": "^7.0.0",
+    "electron-easy-updater": "0.4.10",
+    "fs-extra": "6.0.1",
+    "is-online": "7.0.0",
     "lodash": "4.17.4",
     "minimist": "1.2.0",
-    "ng2-vizabi": "^4.0.9",
-    "ngx-bootstrap": "2.0.2",
     "online-branch-exist": "2.0.2",
-    "semver": "^5.5.0",
-    "universal-analytics": "^0.4.16",
-    "urlon": "^3.0.1",
-    "vizabi": "^0.32.6",
-    "vizabi-barrankchart": "2.1.1",
-    "vizabi-bubblechart": "2.0.5",
-    "vizabi-bubblemap": "2.0.2",
-    "vizabi-config-systema_globalis": "^2.2.5",
+    "semver": "5.5.0",
     "vizabi-ddfcsv-reader": "2.2.1",
-    "vizabi-linechart": "2.0.6",
-    "vizabi-mountainchart": "2.0.4",
-    "zip-dir": "^1.0.2"
+    "universal-analytics": "^0.4.16",
+    "urlon": "3.0.1",
+    "zip-dir": "1.0.2"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "0.6.3",
@@ -99,6 +90,15 @@
     "typescript": "2.7.2",
     "wait-on": "2.1.0",
     "webdriver-manager": "12.0.6",
-    "zone.js": "0.8.26"
+    "zone.js": "0.8.26",
+    "ngx-bootstrap": "2.0.2",
+    "ng2-vizabi": "4.0.9",
+    "vizabi": "0.32.6",
+    "vizabi-barrankchart": "2.1.1",
+    "vizabi-bubblechart": "2.0.5",
+    "vizabi-bubblemap": "2.0.2",
+    "vizabi-config-systema_globalis": "2.2.5",
+    "vizabi-linechart": "2.0.6",
+    "vizabi-mountainchart": "2.0.4"
   }
 }

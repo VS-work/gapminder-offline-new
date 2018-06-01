@@ -1,5 +1,5 @@
 {
-  "productName": "angular-electron",
+  "productName": "Gapminder Offline",
   "directories": {
     "output": "app-builds"
   },
@@ -22,19 +22,19 @@
   "win": {
     "icon": "dist",
     "target": [
-      "portable"
+      "dir"
     ]
   },
   "mac": {
     "icon": "dist",
     "target": [
-      "dmg"
+      "dir"
     ]
   },
   "linux": {
     "icon": "dist",
     "target": [
-      "AppImage"
+      "dir"
     ]
   }
 }

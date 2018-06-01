@@ -13,7 +13,7 @@ export class FreshenerService {
   constructor(private es: ElectronService) {
   }
 
-  public checkCurrentTabModification(tab: TabModel): void {
+  checkCurrentTabModification(tab: TabModel) {
     if (tab.model) {
       this.activeTab = tab;
 
@@ -34,7 +34,7 @@ export class FreshenerService {
     return `${this.activeTab.getOrder()}${activePath}`;
   }
 
-  private checkPathModification(activePaths: string[]): void {
+  private checkPathModification(activePaths: string[]) {
     let modificationFlag = false;
 
     for (const activePath of activePaths) {

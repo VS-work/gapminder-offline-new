@@ -8,6 +8,7 @@
 /out-tsc
 /app-builds
 main.js
+!src/lib/**/*
 !src/export-template/
 
 # dependencies

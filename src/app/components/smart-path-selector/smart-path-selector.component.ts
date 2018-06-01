@@ -29,17 +29,17 @@ import { ElectronService } from '../../providers/electron.service';
     }]
 })
 export class SmartPathSelectorComponent implements ControlValueAccessor, Validator, AfterContentChecked {
-  @Input() public isDirectory: boolean;
-  @Input() public title = 'Choose CSV file';
-  @Input() public accept = '.csv';
-  @Input() public clearValueAfterHide: boolean;
-  @Output() public done: EventEmitter<any> = new EventEmitter();
-  @ViewChild('uploadBtn') public uploadBtn: ElementRef;
-  @ViewChild('uploadFileInput') public uploadFileInput: ElementRef;
-  public directory = '';
-  public file = '';
-  public fileDoesNotExistsError: boolean;
-  public data: any;
+  @Input() isDirectory: boolean;
+  @Input() title = 'Choose CSV file';
+  @Input() accept = '.csv';
+  @Input() clearValueAfterHide: boolean;
+  @Output() done: EventEmitter<any> = new EventEmitter();
+  @ViewChild('uploadBtn') uploadBtn: ElementRef;
+  @ViewChild('uploadFileInput') uploadFileInput: ElementRef;
+  directory = '';
+  file = '';
+  fileDoesNotExistsError: boolean;
+  data: any;
 
   private filePath = '';
   private lastModified: number;
@@ -47,7 +47,7 @@ export class SmartPathSelectorComponent implements ControlValueAccessor, Validat
   constructor(private es: ElectronService) {
   }
 
-  public ngAfterContentChecked(): void {
+  ngAfterContentChecked() {
     if (!this.clearValueAfterHide) {
       return;
     }
@@ -60,17 +60,17 @@ export class SmartPathSelectorComponent implements ControlValueAccessor, Validat
     }
   }
 
-  public writeValue(obj: any): void {
+  writeValue(obj: any) {
     if (obj) {
       this.data = obj;
       this.prepareResultIfOk(this.data);
     }
   }
 
-  public registerOnChange(fn: any): void {
+  registerOnChange(fn: any) {
   }
 
-  public validate(c: FormControl): any {
+  validate(c: FormControl): any {
     return (!this.fileDoesNotExistsError) ? null : {
       fileExistsError: {
         valid: false
@@ -78,10 +78,10 @@ export class SmartPathSelectorComponent implements ControlValueAccessor, Validat
     };
   }
 
-  public registerOnTouched(): void {
+  registerOnTouched() {
   }
 
-  public onChange(event: any): void {
+  onChange(event: any) {
     const newValue = this.filePath ? this.es.path.resolve(this.filePath, event.target.value) : event.target.value;
 
     try {
@@ -97,7 +97,7 @@ export class SmartPathSelectorComponent implements ControlValueAccessor, Validat
     this.prepareResultIfOk(newValue);
   }
 
-  public onCsvFileChanged(event: any): void {
+  public onCsvFileChanged(event: any) {
     const selectedFile = ChartService.getFirst(event.srcElement.files);
 
     if (selectedFile) {
@@ -108,7 +108,7 @@ export class SmartPathSelectorComponent implements ControlValueAccessor, Validat
     }
   }
 
-  private prepareResultIfOk(fileOrDirectory: string): void {
+  private prepareResultIfOk(fileOrDirectory: string) {
     if (!this.fileDoesNotExistsError) {
       if (this.isDirectory) {
         this.directory = fileOrDirectory;

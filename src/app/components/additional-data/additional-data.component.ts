@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, Injectable } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { IAdditionalDataItem } from '../descriptors/additional-data-item.descriptor';
 import { ChartService } from '../tabs/chart.service';
 

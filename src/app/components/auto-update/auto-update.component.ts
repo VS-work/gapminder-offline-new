@@ -23,16 +23,16 @@ export class AutoUpdateComponent implements OnInit {
   @Output() onAutoUpdateProgress: EventEmitter<any> = new EventEmitter();
   @Output() onAutoUpdateCompleted: EventEmitter<any> = new EventEmitter();
 
-  public requestToUpdate = false;
-  public requestToDatasetUpdate = false;
-  public requestToProgress = false;
-  public requestToExitAndFinishUpdate = false;
-  public max = 200;
-  public progress = 0;
-  public error = false;
-  public versionDescriptor: VersionDescriptor;
+  requestToUpdate = false;
+  requestToDatasetUpdate = false;
+  requestToProgress = false;
+  requestToExitAndFinishUpdate = false;
+  max = 200;
+  progress = 0;
+  error = false;
+  versionDescriptor: VersionDescriptor;
   /* todo: try to use it later */
-  public downloadLinks: any = {
+  downloadLinks: any = {
     linux: 'https://s3-eu-west-1.amazonaws.com/gapminder-offline/Gapminder%20Offline-linux.zip',
     darwin: 'https://s3-eu-west-1.amazonaws.com/gapminder-offline/Install%20Gapminder%20Offline.dmg',
     win32x64: 'https://s3-eu-west-1.amazonaws.com/gapminder-offline/Install%20Gapminder%20Offline-64.exe',
@@ -44,7 +44,7 @@ export class AutoUpdateComponent implements OnInit {
   constructor(private es: ElectronService) {
   }
 
-  public ngOnInit(): void {
+  ngOnInit() {
     this.es.ipcRenderer.send('check-version');
 
     this.es.ipcRenderer.on('request-and-update', (event: any, versionDescriptor: VersionDescriptor) => {
@@ -66,13 +66,6 @@ export class AutoUpdateComponent implements OnInit {
         this.onAutoUpdateRequested.emit();
       }
     });
-
-    /*ipc.on('request-to-ds-update', (event: any, version: string) => {
-      if (version) {
-        this.requestToDatasetUpdate = true;
-        this.onAutoUpdateRequested.emit();
-      }
-    });*/
 
     this.es.ipcRenderer.on('download-progress', (event: any, progressDescriptor: ProgressDescriptor) => {
       progressDescriptor.progress = Number(progressDescriptor.progress);
@@ -107,32 +100,31 @@ export class AutoUpdateComponent implements OnInit {
     });
   }
 
-  public processUpdateRequest(version?: string): void {
+  processUpdateRequest(version?: string) {
     this.es.ipcRenderer.send('prepare-update', version);
     this.resetUpdateRequest();
-
     this.requestToProgress = true;
     this.progressMap.clear();
     this.onAutoUpdateRequested.emit();
   }
 
-  public resetUpdateRequest(): void {
+  resetUpdateRequest() {
     this.requestToUpdate = false;
   }
 
-  public processExitAndFinishUpdateRequest(): void {
+  processExitAndFinishUpdateRequest() {
     this.es.ipcRenderer.send('exit-and-update');
   }
 
-  public resetError(): void {
+  resetError() {
     this.error = false;
   }
 
-  public openURL(url: string): void {
+  openURL(url: string) {
     this.es.shell.openItem(url);
   }
 
-  public cancel(): void {
+  cancel() {
     this.requestToUpdate = false;
     this.requestToDatasetUpdate = false;
   }

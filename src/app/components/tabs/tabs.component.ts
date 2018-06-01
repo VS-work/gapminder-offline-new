@@ -21,19 +21,19 @@ declare const d3: any;
   templateUrl: './tabs.component.html'
 })
 export class TabsComponent implements OnInit {
-  @Input() public tabsModel: TabModel[] = [];
-  @Input() public disabled: boolean;
-  @Output() public onTabsInit: EventEmitter<any> = new EventEmitter();
-  @Output() public onTabRemoved: EventEmitter<any> = new EventEmitter();
-  @Output() public onTabReady: EventEmitter<any> = new EventEmitter();
-  @Output() public onTabSetActive: EventEmitter<any> = new EventEmitter();
-  @Output() public onChartCreated: EventEmitter<any> = new EventEmitter();
-  @Output() public onChartChanged: EventEmitter<any> = new EventEmitter();
-  @Output() public onChartClicked: EventEmitter<any> = new EventEmitter();
+  @Input() tabsModel: TabModel[] = [];
+  @Input() disabled: boolean;
+  @Output() onTabsInit: EventEmitter<any> = new EventEmitter();
+  @Output() onTabRemoved: EventEmitter<any> = new EventEmitter();
+  @Output() onTabReady: EventEmitter<any> = new EventEmitter();
+  @Output() onTabSetActive: EventEmitter<any> = new EventEmitter();
+  @Output() onChartCreated: EventEmitter<any> = new EventEmitter();
+  @Output() onChartChanged: EventEmitter<any> = new EventEmitter();
+  @Output() onChartClicked: EventEmitter<any> = new EventEmitter();
 
-  public tabDataDescriptor: TabDataDescriptor = {};
+  tabDataDescriptor: TabDataDescriptor = {};
 
-  public constructor(
+  constructor(
     private chartService: ChartService,
     private messageService: MessageService,
     private freshenerService: FreshenerService,
@@ -42,11 +42,11 @@ export class TabsComponent implements OnInit {
   }
 
   @HostListener('window:focus')
-  onFocus(): void {
+  onFocus() {
     this.freshenerService.checkCurrentTabModification(this.getCurrentTab());
   }
 
-  public ngOnInit(): void {
+  ngOnInit() {
     this.es.ipcRenderer.send('get-app-path');
     this.es.ipcRenderer.send('get-versions-info');
     this.es.ipcRenderer.send('get-dev-mode');
@@ -117,7 +117,7 @@ export class TabsComponent implements OnInit {
     });
   }
 
-  public getSyncActions(): ITabActionsSynchronizer {
+  getSyncActions(): ITabActionsSynchronizer {
     return {
       onSetTabActive: (index: number) => {
         this.tabsModel.forEach((tab: TabModel) => tab.active = false);
@@ -137,17 +137,17 @@ export class TabsComponent implements OnInit {
     };
   }
 
-  public getCurrentTab(): TabModel {
+  getCurrentTab(): TabModel {
     return this.tabsModel.find((tab: TabModel) => tab.active);
   }
 
-  public newTab(): void {
+  newTab() {
     if (!this.disabled) {
       this.chartService.initTab(this.tabsModel);
     }
   }
 
-  public selectTab(tab: TabModel): void {
+  selectTab(tab: TabModel) {
     if (!this.disabled) {
       tab.active = true;
 
@@ -156,7 +156,7 @@ export class TabsComponent implements OnInit {
     }
   }
 
-  public sendCurrentPathToFreshener(): void {
+  sendCurrentPathToFreshener() {
     const currentTab = this.getCurrentTab();
 
     if (currentTab.chartType) {
@@ -164,13 +164,13 @@ export class TabsComponent implements OnInit {
     }
   }
 
-  public deselectTab(tab: TabModel): void {
+  deselectTab(tab: TabModel) {
     if (!this.disabled) {
       tab.active = false;
     }
   }
 
-  public removeTab(data?: any): void {
+  removeTab(data?: any) {
     if (!this.disabled) {
       this.forceResize();
 
@@ -183,7 +183,7 @@ export class TabsComponent implements OnInit {
     }
   }
 
-  public selectChart(chartType: string, isDefault: boolean = true): void {
+  selectChart(chartType: string, isDefault: boolean = true) {
     const tab = this.getCurrentTab();
     tab.chartType = chartType;
 
@@ -192,16 +192,16 @@ export class TabsComponent implements OnInit {
     }
   }
 
-  public openGapminder(): void {
+  openGapminder() {
     this.es.shell.openExternal('http://www.gapminder.org');
   }
 
-  private defaultChart(): void {
+  private defaultChart() {
     this.chartService.newChart(this.getCurrentTab(), this.tabDataDescriptor);
     this.es.ipcRenderer.send('new-chart', this.getCurrentTab().chartType);
   }
 
-  private forceResize(): void {
+  private forceResize() {
     setTimeout(() => {
       const event: any = document.createEvent('HTMLEvents');
 
@@ -212,7 +212,7 @@ export class TabsComponent implements OnInit {
     }, 10);
   }
 
-  private chartCreated(data: any, tab: TabModel): void {
+  private chartCreated(data: any, tab: TabModel) {
     this.chartService.log('chartCreated', data);
     tab.component = data.model;
     tab.instance = data.component;
@@ -220,7 +220,7 @@ export class TabsComponent implements OnInit {
     this.onChartCreated.emit();
   }
 
-  private redefineHrefs(): void {
+  private redefineHrefs() {
     d3.selectAll('.vzb-dialogs-dialog, .vzb-data-warning-box, .vzb-tool-datanotes').selectAll('a').each(function () {
       const view = d3.select(this);
       const href = view.attr('_href') || view.attr('href');
@@ -235,11 +235,11 @@ export class TabsComponent implements OnInit {
     });
   }
 
-  private ready(data: any, tab: TabModel): void {
+  private ready(data: any, tab: TabModel) {
     this.onTabReady.emit({data, tab});
   }
 
-  private chartChanged(data: any, tab: TabModel): void {
+  private chartChanged(data: any, tab: TabModel) {
     tab.component = data.component;
 
     this.onChartChanged.emit();
@@ -247,11 +247,11 @@ export class TabsComponent implements OnInit {
     this.chartService.log('chartChanged', data);
   }
 
-  private clickHandler(event: any): void {
+  private clickHandler(event: any) {
     this.chartService.log('chart clickHandler', event);
   }
 
-  private errorHandler(error: Error): void {
+  private errorHandler(error: Error) {
     console.log(error);
   }
 }

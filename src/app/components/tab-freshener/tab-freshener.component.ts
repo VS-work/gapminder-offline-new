@@ -7,9 +7,9 @@ import { TabModel } from '../tabs/tab.model';
   styleUrls: ['./tab-freshener.component.css']
 })
 export class TabFreshenerComponent {
-  @Input() public tab: TabModel;
+  @Input() tab: TabModel;
 
-  public reload(): void {
+  reload() {
     this.tab.isDataExpired = false;
     this.tab.reloadTime = new Date().getTime();
   }

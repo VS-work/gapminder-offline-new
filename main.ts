@@ -4,12 +4,15 @@ import * as url from 'url';
 import * as fs from 'fs';
 // import * as semver from 'semver';
 import { DdfValidatorWrapper } from './ddf-validator-wrapper';
-import { exportForWeb, openFileWhenDoubleClick, openFileWithDialog, saveAllTabs, saveFile } from './file-mamagement';
+import { exportForWeb, openFileWhenDoubleClick, openFileWithDialog, saveAllTabs, saveFile } from './file-management';
 
 const args = process.argv.slice(1);
 const PRESETS_FILE = __dirname + '/presets.json';
 const devMode = process.argv.length > 1 && process.argv.indexOf('dev') > 0;
 const autoUpdateTestMode = process.argv.length > 1 && process.argv.indexOf('au-test') > 0;
+
+const nonAsarAppPath = app.getAppPath().replace(/app\.asar/, '');
+const dataPackage = require(path.resolve(nonAsarAppPath, 'ddf--gapminder--systema_globalis/datapackage.json'));
 
 let mainWindow;
 let serve;
@@ -21,9 +24,6 @@ serve = args.some(val => val === '--serve');
 
 function createWindow() {
   const isFileArgumentValid = fileName => fs.existsSync(fileName) && fileName.indexOf('-psn_') === -1;
-
-  const electronScreen = screen;
-  // const size = electronScreen.getPrimaryDisplay().workAreaSize;
 
   mainWindow = new BrowserWindow({width: 1200, height: 800});
 
@@ -53,11 +53,11 @@ function createWindow() {
   });
 
   ipc.on('get-versions-info', () => {
-    // mainWindow.setTitle(`Gapminder Tools Offline v.${app.getVersion()} (dataset v.${dataPackage.version})`);
+    mainWindow.setTitle(`Gapminder Tools Offline v.${app.getVersion()} (dataset v.${dataPackage.version})`);
   });
 
   ipc.on('get-app-path', event => {
-    event.sender.send('got-app-path', app.getAppPath().replace(/app\.asar/, ''));
+    event.sender.send('got-app-path', nonAsarAppPath);
   });
 
   ipc.on('get-app-arguments', event => {
@@ -177,6 +177,17 @@ try {
     }
   });
 
+  app.on('open-file', (event, filePath) => {
+    event.preventDefault();
+
+    if (mainWindow && mainWindow.webContents) {
+      openFileWhenDoubleClick(mainWindow, filePath);
+    } else {
+      if (!devMode && !autoUpdateTestMode) {
+        currentFile = filePath;
+      }
+    }
+  });
 } catch (e) {
   // Catch Error
   // throw e;
