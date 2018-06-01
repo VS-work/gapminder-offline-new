@@ -1,0 +1,326 @@
+.glyphicon-remove-circle:before {
+    content: "\e014";
+    top: 1px;
+    position: relative;
+    right: -2px;
+    cursor: pointer;
+}
+
+.nav-tabs > li > a .glyphicon-remove-circle:hover:before {
+    background-color: #ff0000;
+    color: #fff;
+    border-radius: 5px;
+}
+
+.nav-tabs > li > a .glyphicon-plus:before {
+    color: #ffca34;
+}
+
+.nav-tabs > li > a .glyphicon-plus:hover:before {
+    color: #555555;
+}
+
+.main-menu-btn {
+    border: none ! important;
+    background-color: #fff ! important;
+    outline: none ! important;
+    margin-top: 2px;
+    margin-right: 2px;
+}
+
+.main-menu-btn:hover {
+    border: none ! important;
+    outline: none ! important;
+}
+
+.main-menu-btn:active {
+    border: none ! important;
+    outline: none ! important;
+}
+
+.ddf-menu .dropdown-menu {
+    left: auto !important;
+    right: 0 !important;
+}
+
+.ddf-menu .dropdown .btn {
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.ddf-menu .dropdown .btn:hover {
+    background: none;
+}
+
+.ddf-menu .dropdown .btn-default {
+    background-color: #ffffff;
+}
+
+.ddf-menu .dropdown .btn-default:active {
+    background-color: #ffffff;
+}
+
+.ddf-menu .dropdown .btn-default:focus {
+    background-color: #ffffff;
+}
+
+.menu {
+    top: 24px;
+    right: 0px;
+    position: absolute;
+    width: 200px;
+    padding: 2px;
+    margin: 0;
+    border: 1px solid #bbb;
+    background: #fff;
+    z-index: 2147483647;
+    border-radius: 3px;
+    box-shadow: 1px 1px 4px rgba(0, 0, 0, .2);
+    opacity: 0;
+    -webkit-transform: translate(0, 15px) scale(.95);
+    transform: translate(0, 15px) scale(.95);
+    transition: transform 0.1s ease-out, opacity 0.1s ease-out;
+    pointer-events: none;
+}
+
+.menu-item {
+    display: block;
+    position: relative;
+    margin: 0;
+    padding: 0;
+    white-space: nowrap;
+}
+
+.menu-btn {
+    background: none;
+    line-height: normal;
+    overflow: visible;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    display: block;
+    width: 100%;
+    color: #444;
+    text-align: left;
+    cursor: pointer;
+    border: 1px solid transparent;
+    white-space: nowrap;
+    padding: 6px 8px;
+    border-radius: 3px;
+}
+
+.menu-btn::-moz-focus-inner, .menu-btn::-moz-focus-inner {
+    border: 0;
+    padding: 0;
+}
+
+.menu-text {
+    margin-left: 25px;
+}
+
+.menu-item:hover > .menu-btn {
+    color: #fff;
+    outline: none;
+    background-color: #2E3940;
+    border: 1px solid #2E3940;
+}
+
+.menu-item.disabled {
+    opacity: .5;
+    pointer-events: none;
+}
+
+.menu-item.disabled .menu-btn {
+    cursor: default;
+}
+
+.menu-separator {
+    display: block;
+    margin: 7px 5px;
+    height: 1px;
+    border-bottom: 1px solid #fff;
+    background-color: #aaa;
+}
+
+.menu-item.submenu::after {
+    content: "";
+    position: absolute;
+    left: 6px;
+    top: 50%;
+    -webkit-transform: translateY(-50%);
+    transform: translateY(-50%);
+    border: 5px solid transparent;
+    border-right-color: #808080;
+}
+
+.menu-item.submenu:hover::after {
+    border-right-color: #fff;
+}
+
+.menu .menu {
+    top: 0px;
+    right: 99%;
+}
+
+.show-menu, .menu-item:hover > .menu {
+    opacity: 1;
+    -webkit-transform: translate(0, 0) scale(1);
+    transform: translate(0, 0) scale(1);
+    pointer-events: auto;
+}
+
+.menu-item:hover > .menu {
+    -webkit-transition-delay: 100ms;
+    transition-delay: 300ms;
+}
+
+.ddf-progress {
+    margin: 0;
+}
+
+.inputfile {
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
+}
+
+.inputfile + label {
+    font-size: 1.25em;
+    font-weight: 700;
+    color: white;
+    background-color: #ffca34;
+    display: inline-block;
+}
+
+.inputfile:focus + label,
+.inputfile + label:hover {
+    background-color: #ffca34;
+}
+
+.inputfile + label {
+    cursor: pointer;
+}
+
+.nav-item > .active {
+    background-color: #ffca34 ! important;
+    border: none ! important;
+}
+
+.tab-container > ul > li > a {
+    margin: 0;
+    border: none;
+}
+
+.tabs-wrapper {
+    height: auto;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    display: flex;
+}
+
+.pre-nav-tabs {
+    height: auto;
+    margin: 0;
+    padding: 0;
+    width: auto;
+    overflow: hidden;
+}
+
+.noscrollbar::-webkit-scrollbar {
+    width: 0px;
+    height: 0px;
+}
+
+.yellow-border {
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-bottom: 2px solid #ffca34;
+}
+
+.nav-tabs {
+    display: flex;
+    overflow-x: scroll;
+    width: 100%;
+    padding-bottom: 1px;
+    border-bottom: none;
+}
+
+.nav-tabs > li > a {
+    margin: 0;
+    border: none;
+    border-radius: 0 0 0 0;
+}
+
+.nav-tabs > li > a:hover {
+    margin: 0;
+    background-color: #ffca34 ! important;
+    border: none ! important;
+}
+
+.nav-tabs > li:last-child > a:hover {
+    margin: 0;
+    background-color: inherit ! important;
+    font-weight: bold;
+    border: none ! important;
+}
+
+.nav-tabs > li:last-child > a:focus {
+    margin: 0;
+    background-color: inherit ! important;
+    border: none ! important;
+}
+
+.nav-link {
+    white-space: nowrap;
+    border: none;
+}
+
+.tab-container > div {
+    height: 100%;
+}
+
+.add-tab {
+    margin: 0;
+    padding: 0;
+}
+
+.add-tab > a .glyphicon-plus:before {
+    color: #ffca34;
+}
+
+.add-tab > a .glyphicon-plus:hover:before {
+    color: #555555;
+}
+
+.scroll-control, .scroll-control-inactive {
+    padding: 11px 3px 3px 0;
+}
+
+.scroll-control > a .glyphicon-triangle-right:before {
+    color: #ffca34;
+}
+
+.scroll-control-inactive > a .glyphicon-triangle-right:before {
+    color: #fff;
+}
+
+.scroll-control > a .glyphicon-triangle-right:hover:before {
+    color: #555555;
+}
+
+.scroll-control > a .glyphicon-triangle-left:before {
+    color: #ffca34;
+}
+
+.scroll-control-inactive > a .glyphicon-triangle-left:before {
+    color: #fff;
+}
+
+.scroll-control > a .glyphicon-triangle-left:hover:before {
+    color: #555555;
+}

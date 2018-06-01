@@ -1,0 +1,63 @@
+<app-tabs-new [syncActions]="getSyncActions()" [disabled]="disabled" style = "height: 100%;">
+    <app-tab-new *ngFor = "let tab of tabsModel"
+                [title] = "tab.title"
+                [active] = "tab.active"
+                [removable] = "true"
+                (select) = "selectTab(tab)"
+                (deselect) = "deselectTab(tab)"
+                (remove) = "removeTab($event)"
+                style = "height: 100%;">
+        <div *ngIf = "!tab.chartType">
+            <div class = "tab-chart-choice">Choose Chart Type</div>
+            <ul class = "tab-chart-list">
+                <li (click) = "selectChart('BubbleChart')">
+                    <div><img src = "assets/images/tools/bubblechart.png"><span>Bubbles</span></div>
+                </li>
+                <li (click) = "selectChart('BubbleMap')">
+                    <div><img src = "assets/images/tools/bubblemap.png"><span>Maps</span></div>
+                </li>
+                <li (click) = "selectChart('MountainChart')">
+                    <div><img src = "assets/images/tools/mountainchart.png"><span>Mountains</span></div>
+                </li>
+                <li (click) = "selectChart('BarRankChart')">
+                    <div><img src = "assets/images/tools/barrankchart.png"><span>Rankings</span></div>
+                </li>
+                <li (click) = "selectChart('LineChart')">
+                    <div><img src = "assets/images/tools/linechart.png"><span>Lines</span></div>
+                </li>
+            </ul>
+        </div>
+        <div *ngIf = "tab.chartType" style = "height: 100%">
+            <div *ngFor="let alert of tab.alerts">
+                <alert type="danger">
+                    An error has occurred during chart processing.
+                    <a href="#" (click)="alert.toggle()">Details...</a>
+                    <div *ngIf="!alert.collapsed">
+                        <div [innerHtml]="alert.message"></div>
+                        <div [innerHtml]="alert.stack"></div>
+                    </div>
+                </alert>
+            </div>
+
+            <app-tab-freshener *ngIf="tab.isDataExpired" [tab]="tab"></app-tab-freshener>
+
+            <vizabi *ngIf="tab.alerts.length <= 0"
+                    style = "height: 100%;"
+                    (onCreated) = "chartCreated($event, tab)"
+                    (onChanged) = "chartChanged($event, tab)"
+                    (onReadyOnce)="ready($event, tab)"
+                    (onClick) = "clickHandler($event)"
+                    (onError)="errorHandler($event)"
+                    [order] = "tab.getOrder()"
+                    [readerModuleObject] = "tab.readerModuleObject"
+                    [readerGetMethod] = "tab.readerGetMethod"
+                    [readerPlugins] = "tab.readerPlugins"
+                    [readerName] = "tab.readerName"
+                    [model] = "tab.model"
+                    [additionalItems] = "tab.additionalData"
+                    [reloadTime]="tab.reloadTime"
+                    [restoreStateAfterReload]="true"
+                    [chartType] = "tab.chartType"></vizabi>
+        </div>
+    </app-tab-new>
+</app-tabs-new>

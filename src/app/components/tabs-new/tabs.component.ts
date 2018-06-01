@@ -1,0 +1,255 @@
+import {
+  Component,
+  ContentChildren,
+  QueryList,
+  Input,
+  AfterViewInit,
+  OnDestroy,
+  ViewChild,
+  ElementRef,
+  ChangeDetectionStrategy
+} from '@angular/core';
+import { TabNewComponent } from './tab.component';
+import { ITabActionsSynchronizer } from './tabs.common';
+import { MessageService } from '../../message.service';
+import { Subscription } from 'rxjs/Subscription';
+import {
+  CLEAR_EDITABLE_TABS_ACTION, TABS_LOGO_ACTION, TABS_ADD_TAB_ACTION, SWITCH_MENU_ACTION,
+  MODEL_CHANGED
+} from '../../constants';
+import { ChartService } from '../tabs/chart.service';
+
+const TAB_TIMEOUT = 100;
+const SCROLL_TIMEOUT = 200;
+
+@Component({
+  selector: 'app-tabs-new',
+  templateUrl: './tabs.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class TabsNewComponent implements AfterViewInit, OnDestroy {
+  @ContentChildren(TabNewComponent) public tabs: QueryList<TabNewComponent>;
+  @Input() public syncActions: ITabActionsSynchronizer;
+  @Input() public disabled: boolean;
+
+  @ViewChild('tabsContainer') public tabsContainer: ElementRef;
+  public messageService: MessageService;
+  public subscription: Subscription;
+
+  private intervalId: any;
+
+  public constructor(messageService: MessageService) {
+    this.messageService = messageService;
+    this.subscription = this.messageService.getMessage()
+      .subscribe((event: any) => {
+        if (event.message === CLEAR_EDITABLE_TABS_ACTION && !this.disabled) {
+          const isEditMode = !!this.getEditableTab();
+          const isOptionParamExists = () => !!event.options;
+          const isTargetExists = () => isOptionParamExists() && event.options.target;
+          const isClassListExists = () => isTargetExists() && event.options.target.classList;
+          const hasExpectedClass = (expectedClass: string) => isClassListExists() && event.options.target.classList.contains(expectedClass);
+
+          if (!hasExpectedClass('editTabInput') && !hasExpectedClass('doNotEditTabInput') && isEditMode) {
+            this.resetEditMode();
+          }
+        }
+      });
+  }
+
+  public ngAfterViewInit(): void {
+    this.tabs.changes.subscribe(() => {
+      this.tabs.forEach((tab: TabNewComponent) => {
+        tab.editMode = false;
+      });
+    });
+  }
+
+  public ngOnDestroy(): void {
+    this.subscription.unsubscribe();
+  }
+
+  public getEditableTab(): TabNewComponent {
+    return this.tabs.find((tab: TabNewComponent) => tab.editMode);
+  }
+
+  public getTabIndex(currentTab: TabNewComponent): number {
+    let currentTabIndex = -1;
+
+    this.tabs.forEach((tab: TabNewComponent, index: number) => {
+      if (tab === currentTab) {
+        currentTabIndex = index;
+      }
+    });
+
+    return currentTabIndex;
+  }
+
+  public selectTab(selectedTab: TabNewComponent): void {
+    if (!this.disabled) {
+      let editModeFired = false;
+
+      this.tabs.forEach((tab: TabNewComponent) => {
+        if (selectedTab !== tab && tab.active) {
+          tab.deselect.emit(tab);
+          tab.active = false;
+        }
+
+        if (selectedTab === tab && tab.active) {
+          tab.editMode = true;
+          editModeFired = true;
+        }
+      });
+
+      selectedTab.active = true;
+      selectedTab.select.emit(selectedTab);
+
+      if (!editModeFired) {
+        this.resetEditMode();
+      }
+    }
+
+    this.messageService.sendMessage(MODEL_CHANGED);
+  }
+
+  public removeTab(tab: TabNewComponent): void {
+    if (!this.disabled) {
+      const tabsAsArray: TabNewComponent[] = this.getTabsAsArray();
+      const index = tabsAsArray.indexOf(tab);
+
+      if (index === -1) {
+        return;
+      }
+
+      let newActiveIndex = -1;
+
+      if (this.tabs.length > 1) {
+        newActiveIndex = this.getClosestTabIndex(index);
+
+        if (newActiveIndex >= 0) {
+          this.syncActions.onSetTabActive(newActiveIndex);
+        }
+      }
+
+      tab.remove.emit({tab: this.tabs[index], newActiveIndex});
+      this.syncActions.onTabRemove(index);
+    }
+  }
+
+  public getTabsAsArray(): TabNewComponent[] {
+    return this.tabs.toArray();
+  }
+
+  public applyEditedTitle(): void {
+    if (!this.disabled) {
+      const editableTab = this.getEditableTab();
+
+      editableTab.applyEditedTitle();
+      this.syncActions.onTabChanged(editableTab, this.getTabIndex(editableTab));
+    }
+  }
+
+  public dismissEditedTitle(): void {
+    if (!this.disabled) {
+      this.getEditableTab().dismissEditedTitle();
+    }
+  }
+
+  public resetEditMode(): void {
+    if (!this.disabled) {
+      this.tabs.forEach((tab: TabNewComponent, index: number) => {
+        if (tab.editMode) {
+          tab.editMode = false;
+          this.syncActions.onTabChanged(tab, index);
+        }
+      });
+    }
+  }
+
+  public logoAction(): void {
+    this.messageService.sendMessage(TABS_LOGO_ACTION);
+  }
+
+  public addTabAction(): void {
+    this.messageService.sendMessage(TABS_ADD_TAB_ACTION);
+
+    const el = this.tabsContainer.nativeElement;
+
+    setTimeout(() => {
+      el.scrollLeft = el.scrollWidth;
+    }, TAB_TIMEOUT);
+  }
+
+  public switchMenuAction(event: any): void {
+    event.stopPropagation();
+    event.preventDefault();
+    this.messageService.sendMessage(SWITCH_MENU_ACTION);
+  }
+
+  public actionScroll(direction: number): void {
+    const el = this.tabsContainer.nativeElement;
+    const tabWidthWithDirection = direction * el.children[0].getBoundingClientRect().width;
+
+    el.scrollLeft += tabWidthWithDirection;
+  }
+
+  public actionScrollStart(direction: number): void {
+    if (!this.intervalId) {
+      this.actionScroll(direction);
+
+      this.intervalId = setInterval(() => {
+        this.actionScroll(direction);
+      }, SCROLL_TIMEOUT);
+    }
+  }
+
+  public actionScrollFinish(): void {
+    clearInterval(this.intervalId);
+    this.intervalId = null;
+  }
+
+  public autoScroll(): void {
+    const el = this.tabsContainer.nativeElement;
+
+    el.scrollLeft = el.scrollLeft;
+  }
+
+  public canMoveRight(): boolean {
+    const el = this.tabsContainer.nativeElement;
+
+    return el.scrollLeft > 0;
+  }
+
+  public canMoveLeft(): boolean {
+    const el = this.tabsContainer.nativeElement;
+    const width = Math.ceil(el.getBoundingClientRect().width);
+    const scrollWidth = Math.ceil(el.scrollWidth);
+    const scrollLeft = Math.ceil(el.scrollLeft);
+
+    return scrollWidth > width && scrollWidth - scrollLeft !== width;
+  }
+
+  protected getClosestTabIndex(currentIndex: number): number {
+    const tabsAsArray: TabNewComponent[] = this.getTabsAsArray();
+    const tabsLength = this.tabs.length;
+    const isIndexExpected = (index: number) => tabsAsArray[index] && !tabsAsArray[index].disabled;
+
+    if (!tabsLength) {
+      return -1;
+    }
+
+    for (let step = 1; step <= tabsLength; step++) {
+      const prevIndex = currentIndex - step;
+      const nextIndex = currentIndex + step;
+
+      if (isIndexExpected(nextIndex)) {
+        return nextIndex;
+      }
+
+      if (isIndexExpected(prevIndex)) {
+        return prevIndex;
+      }
+    }
+
+    return -1;
+  }
+}
