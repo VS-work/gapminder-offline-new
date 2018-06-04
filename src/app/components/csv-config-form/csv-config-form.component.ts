@@ -2,7 +2,6 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { ChartService } from '../tabs/chart.service';
 import { isEmpty } from 'lodash';
 import { TabModel } from '../tabs/tab.model';
-import { FormBuilder, FormGroup } from '@angular/forms';
 import { ElectronService } from '../../providers/electron.service';
 
 const vizabiStateFacade: any = {
@@ -31,7 +30,6 @@ export class CsvConfigFormComponent {
   @Input() addDataMode ? = false;
   @Output() done: EventEmitter<any> = new EventEmitter();
 
-  // reactiveForm: FormGroup;
   timeFormats: string[] = ['year', 'month', 'day', 'week', 'quarter'];
   timeFormat: string = this.timeFormats[0];
   timeFormatDescription: any = {
@@ -80,14 +78,13 @@ export class CsvConfigFormComponent {
   choice = '';
   file = '';
   lastModified = '';
+  data = {
+    result: ''
+  };
 
   private _currentTab: TabModel;
 
-  // constructor(private chartService: ChartService, private fb: FormBuilder, private es: ElectronService) {
   constructor(private chartService: ChartService, private es: ElectronService) {
-    /*this.reactiveForm = fb.group({
-      result: ['']
-    });*/
   }
 
   @Input()

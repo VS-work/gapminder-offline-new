@@ -157,17 +157,8 @@ export class ValidationFormComponent implements OnInit, OnDestroy {
   }
 
   getValidatorOptions(): any {
-    const electronPath = this.chartService.ddfFolderDescriptor.electronPath;
-    const validatorPaths = {
-      linux: this.es.path.resolve(electronPath, 'node_modules', 'ddf-validation', 'lib'),
-      darwin: this.es.path.resolve(electronPath, 'resources', 'app', 'node_modules', 'ddf-validation', 'lib'),
-      win32: this.es.path.resolve(electronPath, 'node_modules', 'ddf-validation', 'lib')
-    };
-    // const appPath = validatorPaths[this.es.process.platform];
-    const appPath = '';
     const options: any = {
-      silent: true,
-      appPath
+      silent: true
     };
 
     if (this.dataPackageMode === this.CREATE_NEW_DATA_PACKAGE && this.preserveHeaders) {

@@ -31,11 +31,9 @@
 
     <div class="step-block">
         <h4>Step {{addDataMode ? 2 : 3}}: Pick a file:</h4>
-        <!--<div>
-            <form [formGroup]="reactiveForm">
-                <app-smart-path-selector formControlName="result" (done) = "onCsvFileChanged($event)"></app-smart-path-selector>
-            </form>
-        </div>-->
+        <div>
+          <app-smart-path-selector [(ngModel)]="data.result" (done) = "onCsvFileChanged($event)"></app-smart-path-selector>
+        </div>
     </div>
 
     <div class="step-block" [ngClass]="addDataMode ? 'inactive-time-format' : ''">
