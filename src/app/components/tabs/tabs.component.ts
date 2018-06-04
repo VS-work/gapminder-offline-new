@@ -102,17 +102,19 @@ export class TabsComponent implements OnInit {
       }
 
       if (event.message === OPEN_NEW_DDF_TAB_FROM_VALIDATOR) {
-        /*this.chartService.setReaderDefaults(this.chartService.ddfFolderDescriptor);
+        const tabDataDescriptor: TabDataDescriptor = {};
+
+        this.chartService.setReaderDefaults(tabDataDescriptor);
         this.chartService.ddfFolderDescriptor.ddfUrl = event.options.ddfPath;
 
         const newTab = new TabModel(event.options.chartType, false);
 
-        this.chartService.newChart(newTab, this.chartService.ddfFolderDescriptor, false);
+        this.chartService.newChart(newTab, tabDataDescriptor, false);
         this.tabsModel.forEach((tab: TabModel) => tab.active = false);
 
         newTab.active = true;
 
-        this.tabsModel.push(newTab);*/
+        this.tabsModel.push(newTab);
       }
     });
   }

@@ -1,4 +1,4 @@
-import { validationApi } from 'ddf-validation';
+import { validate, StreamValidator, createDataPackage, getDataPackageInfo } from 'ddf-validation';
 
 export class DdfValidatorWrapper {
   event;
@@ -9,7 +9,7 @@ export class DdfValidatorWrapper {
     this.event = event;
     this.params = params;
 
-    const {exists} = validationApi.getDataPackageInfo(this.params.ddfFolder);
+    const {exists} = getDataPackageInfo(this.params.ddfFolder);
 
     if (!exists || (exists && this.params.dataPackageMode === this.params.createNewDataPackage)) {
       const dataPackageCreationParameters = {
@@ -17,7 +17,7 @@ export class DdfValidatorWrapper {
         newDataPackagePriority: true,
         externalSettings: this.params.options
       };
-      validationApi.createDataPackage(dataPackageCreationParameters, message => {
+      createDataPackage(dataPackageCreationParameters, message => {
         this.event.sender.send('validation-message', message);
       }, error => {
         if (error) {
@@ -33,7 +33,7 @@ export class DdfValidatorWrapper {
   }
 
   validationProcess() {
-    this.validator = new validationApi.StreamValidator(this.params.ddfFolder, this.params.options);
+    this.validator = new StreamValidator(this.params.ddfFolder, this.params.options);
 
     this.validator.onMessage(message => {
       this.event.sender.send('validation-message', message);
@@ -54,7 +54,7 @@ export class DdfValidatorWrapper {
       });
     });
 
-    validationApi.validate(this.validator);
+    validate(this.validator);
   }
 
   abandon() {
