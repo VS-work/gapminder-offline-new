@@ -23,7 +23,6 @@ import {
 import { initMenuComponent } from '../menu/system-menu';
 import { getMenuActions } from '../menu/menu-actions';
 import { FreshenerService } from '../tab-freshener/freshener.service';
-import Menu = Electron.Menu;
 import { ElectronService } from '../../providers/electron.service';
 
 @Component({
@@ -33,7 +32,7 @@ import { ElectronService } from '../../providers/electron.service';
 export class HomeComponent implements OnInit {
   tabsModel: TabModel[] = [];
   isMenuOpened = false;
-  menuComponent: Menu;
+  menuComponent;
   menuActions: any = {};
 
   @ViewChild('ddfModal') ddfModal: ModalDirective;
@@ -126,7 +125,7 @@ export class HomeComponent implements OnInit {
   }
 
   dataItemsAvailability() {
-    /*const currentTab = this.getCurrentTab();
+    const currentTab = this.getCurrentTab();
     const isItemEnabled = !!currentTab && !!currentTab.chartType;
     const fileMenu = this.menuComponent.items[0].submenu;
     const menuAddYourData = fileMenu.items[1];
@@ -141,7 +140,7 @@ export class HomeComponent implements OnInit {
     saveMenu.enabled = isItemEnabled;
     exportMenu.enabled = isItemEnabled;
 
-    saveAllTabs.enabled = this.areChartsAvailable();*/
+    saveAllTabs.enabled = this.areChartsAvailable();
   }
 
   areChartsAvailable(): boolean {

@@ -167,8 +167,8 @@ export const initMenuComponent = (appComponent: HomeComponent, es: ElectronServi
       ]
     }
   ];
-  /*const Menu = es.remote.Menu;
+  const Menu = es.remote.Menu;
 
   appComponent.menuComponent = Menu.buildFromTemplate(templateMenu);
-  Menu.setApplicationMenu(appComponent.menuComponent);*/
+  Menu.setApplicationMenu(appComponent.menuComponent);
 };
