@@ -2,9 +2,12 @@ import { app, BrowserWindow, ipcMain as ipc, screen } from 'electron';
 import * as path from 'path';
 import * as url from 'url';
 import * as fs from 'fs';
-// import * as semver from 'semver';
 import { DdfValidatorWrapper } from './ddf-validator-wrapper';
 import { exportForWeb, openFileWhenDoubleClick, openFileWithDialog, saveAllTabs, saveFile } from './file-management';
+import { GoogleAnalytics } from './google-analytics';
+
+const packageJSON = require('./package.json');
+const ga = new GoogleAnalytics(packageJSON.googleAnalyticsId, app.getVersion());
 
 const args = process.argv.slice(1);
 const PRESETS_FILE = __dirname + '/presets.json';
@@ -136,14 +139,14 @@ function createWindow() {
   ipc.on('do-export-for-web', exportForWeb);
 
   ipc.on('new-chart', (event, chartType) => {
-    // ga.chartEvent(chartType);
+    ga.chartEvent(chartType);
   });
   ipc.on('new-chart', (event, chartType) => {
-    // ga.chartEvent(chartType);
+    ga.chartEvent(chartType);
   });
 
   ipc.on('modify-chart', (event, action) => {
-    // ga.chartChangingEvent(action);
+    ga.chartChangingEvent(action);
   });
 
   ipc.on('start-validation', (event, params) => {

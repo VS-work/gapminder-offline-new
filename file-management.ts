@@ -1,38 +1,38 @@
-import { app, dialog } from 'electron';
-
 import * as _ from 'lodash';
 import * as async from 'async';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as fsExtra from 'fs-extra';
 import * as zipdir from 'zip-dir';
+import { app, dialog } from 'electron';
+import { GoogleAnalytics } from './google-analytics';
 
-// const packageJSON = require('./package.json');
-// const GoogleAnalytics = require('./google-analytics');
-// const ga = new GoogleAnalytics(packageJSON.googleAnalyticsId, app.getVersion());
+const packageJSON = require('./package.json');
+const ga = new GoogleAnalytics(packageJSON.googleAnalyticsId, app.getVersion());
+const nonAsarAppPath = app.getAppPath().replace(/app\.asar/, '');
 
 const DATA_PATH = {
-  win32: app.getAppPath() + '\\ddf--gapminder--systema_globalis',
-  linux: app.getAppPath() + '/ddf--gapminder--systema_globalis',
-  darwin: app.getAppPath() + '/ddf--gapminder--systema_globalis'
+  win32: nonAsarAppPath + '\\ddf--gapminder--systema_globalis',
+  linux: nonAsarAppPath + '/ddf--gapminder--systema_globalis',
+  darwin: nonAsarAppPath + '/ddf--gapminder--systema_globalis'
 };
 
 const WEB_RESOURCE_PATH = {
-  win32: app.getAppPath() + '\\export-template',
-  linux: app.getAppPath() + '/export-template',
-  darwin: app.getAppPath() + '/export-template'
+  win32: nonAsarAppPath + '\\export-template',
+  linux: nonAsarAppPath + '/export-template',
+  darwin: nonAsarAppPath + '/export-template'
 };
 
 const WEB_PATH = {
-  win32: app.getAppPath() + '\\web',
-  linux: app.getAppPath() + '/../../web',
-  darwin: app.getAppPath() + '/../../../../web'
+  win32: nonAsarAppPath + '\\web',
+  linux: nonAsarAppPath + '/../../web',
+  darwin: nonAsarAppPath + '/../../../../web'
 };
 
 const previouslyOpened = {};
 
 const getPathCorrectFunction = brokenPathObject => onPathReady => {
-  /*const parsed = path.parse(brokenPathObject.path);
+  const parsed = path.parse(brokenPathObject.path);
 
   if (previouslyOpened[parsed.base]) {
     brokenPathObject.path = previouslyOpened[parsed.base];
@@ -49,11 +49,9 @@ const getPathCorrectFunction = brokenPathObject => onPathReady => {
     renamed or left on some other computer. Press OK to help locate the file or Cancel to ignore and just open the app.`
   }, function (response) {
     if (response === 0) {
-      const properties = brokenPathObject.reader.indexOf('ddf') === 0 ? ['openDirectory'] : ['openFile'];
-
       dialog.showOpenDialog({
         title: `Choose correct location for "${parsed.base}"...`,
-        properties
+        properties: brokenPathObject.reader.indexOf('ddf') === 0 ? ['openDirectory'] : ['openFile']
       }, dirPaths => {
         if (!dirPaths || dirPaths.length < 0) {
           brokenPathObject.__abandoned = true;
@@ -71,13 +69,13 @@ const getPathCorrectFunction = brokenPathObject => onPathReady => {
 
       onPathReady();
     }
-  });*/
+  });
 };
 
-const isPathInternalWin = path => path.endsWith(DATA_PATH.win32);
-const isPathInternalLin = path => path.endsWith(DATA_PATH.linux);
-const isPathInternalMac = path => path.endsWith(DATA_PATH.darwin);
-const isPathInternal = path => isPathInternalWin(path) || isPathInternalLin(path) || isPathInternalMac(path);
+const isPathInternalWin = _path => _path.endsWith(DATA_PATH.win32);
+const isPathInternalLin = _path => _path.endsWith(DATA_PATH.linux);
+const isPathInternalMac = _path => _path.endsWith(DATA_PATH.darwin);
+const isPathInternal = _path => isPathInternalWin(_path) || isPathInternalLin(_path) || isPathInternalMac(_path);
 const normalizeModelToSave = (model, chartType) => {
   Object.keys(model).forEach(key => {
     if ((key === 'data' || key.indexOf('data_') === 0) && typeof model[key] === 'object') {
@@ -126,7 +124,7 @@ const getConfigWithoutAbandonedData = config => {
 
     let isAbandoned = false;
 
-    for (let key of keys) {
+    for (const key of keys) {
       if ((key === 'data' || key.indexOf('data_') === 0) && typeof model[key] === 'object') {
         if (model[key].__abandoned) {
           isAbandoned = true;
@@ -141,7 +139,7 @@ const getConfigWithoutAbandonedData = config => {
   };
 
   if (_.isArray(config)) {
-    for (let item of config) {
+    for (const item of config) {
       processConfigItem(item);
     }
   } else {
@@ -247,11 +245,11 @@ export const saveFile = (event, params) => {
     fs.writeFile(fileName, JSON.stringify(params.model, null, ' '), err => {
       if (err) {
         dialog.showErrorBox('File save error', err.message);
-        // ga.error('Chart state was NOT saved: ' + err.toString());
+        ga.error('Chart state was NOT saved: ' + err.toString());
         return;
       }
 
-      // ga.error('Chart state successfully saved');
+      ga.error('Chart state successfully saved');
     });
   });
 };
@@ -275,11 +273,11 @@ export const saveAllTabs = (event, tabsDescriptor) => {
     fs.writeFile(fileName, JSON.stringify(tabsDescriptor, null, ' '), err => {
       if (err) {
         dialog.showErrorBox('File save error', err.message);
-        // ga.error('Charts was NOT saved: ' + err.toString());
+        ga.error('Charts was NOT saved: ' + err.toString());
         return;
       }
 
-      // ga.error('Charts successfully saved');
+      ga.error('Charts successfully saved');
     });
   });
 };
@@ -328,7 +326,7 @@ export const exportForWeb = (event, params) => {
     zipdir(`${WEB_PATH[process.platform]}`, {saveTo: fileName}, err => {
       if (err) {
         dialog.showMessageBox({message: 'This chart has NOT been exported.', buttons: ['OK']});
-        // ga.error('Export for Web was NOT completed: ' + err.toString());
+        ga.error('Export for Web was NOT completed: ' + err.toString());
         return;
       }
 

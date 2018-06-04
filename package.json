@@ -15,6 +15,7 @@
     "sass"
   ],
   "main": "main.js",
+  "googleAnalyticsId": "UA-67908993-4",
   "private": true,
   "scripts": {
     "postinstall": "npx electron-builder install-app-deps",

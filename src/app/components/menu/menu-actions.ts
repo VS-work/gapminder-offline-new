@@ -89,7 +89,7 @@ export const getMenuActions = (context: HomeComponent, es: ElectronService) => (
 
     const e = document.createElement('script');
 
-    e.setAttribute('src', '../../resources/app/svg-crowbar.js');
+    e.setAttribute('src', './lib/svg-crowbar.js');
     e.setAttribute('id', 'svg-crowbar');
     e.setAttribute('class', 'svg-crowbar');
     e.setAttribute('data-svg-select', 'div[class="tab-pane"][style*="display: block"] div>svg.vzb-export');
@@ -107,7 +107,7 @@ export const getMenuActions = (context: HomeComponent, es: ElectronService) => (
 
     const e = document.createElement('script');
 
-    e.setAttribute('src', '../../resources/app/svg-crowbar.js');
+    e.setAttribute('src', './lib/svg-crowbar.js');
     e.setAttribute('id', 'svg-crowbar');
     e.setAttribute('class', 'svg-crowbar');
     e.setAttribute('transform', 'png');
