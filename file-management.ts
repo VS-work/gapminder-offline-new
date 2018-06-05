@@ -25,8 +25,8 @@ const WEB_RESOURCE_PATH = {
 
 const WEB_PATH = {
   win32: nonAsarAppPath + '\\web',
-  linux: nonAsarAppPath + '/../../web',
-  darwin: nonAsarAppPath + '/../../../../web'
+  linux: nonAsarAppPath + '/web',
+  darwin: nonAsarAppPath + '/web'
 };
 
 const previouslyOpened = {};

@@ -3,6 +3,7 @@
 # compiled output
 *.js
 *.map.js
+!package-dmg.js
 /dist
 /tmp
 /out-tsc

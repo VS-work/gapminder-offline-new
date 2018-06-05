@@ -13,6 +13,9 @@
         "!src/",
         "!e2e/",
         "!hooks/",
+        "!extra-data/",
+        "!scripts/",
+        "!dmg-builder",
         "!.angular-cli.json",
         "!_config.yml",
         "!karma.conf.js",
@@ -20,13 +23,13 @@
         "!tslint.json"
     ],
   "win": {
-    "icon": "dist",
+    "icon": "dist/app-icon.png",
     "target": [
       "dir"
     ]
   },
   "mac": {
-    "icon": "dist",
+    "icon": "dist/app-icon.icns",
     "target": [
       "dir"
     ]

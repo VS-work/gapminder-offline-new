@@ -1,0 +1,3 @@
+rm -r ./app-builds
+rm -r ./dist
+npm run electron:linux

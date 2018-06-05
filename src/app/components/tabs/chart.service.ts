@@ -74,13 +74,13 @@ export class ChartService {
       reader: 'ddf1-csv-ext',
       ddfPath: this.ddfFolderDescriptor.ddfUrl,
       path: this.ddfFolderDescriptor.ddfUrl,
-      assetsPath: '/home/vs/NEW-go/app-builds/linux-unpacked/resources/preview-data/',
+      assetsPath: this.ddfFolderDescriptor.electronPath + '/preview-data/',
       _lastModified: ddfFolderDescriptor.lastModified
     };
 
     config.locale = {
       id: 'en',
-      filePath: '/home/vs/NEW-go/app-builds/linux-unpacked/resources/preview-data/translation/'
+      filePath: this.ddfFolderDescriptor.electronPath  + '/preview-data/translation/'
     };
 
     config.ui.splash = false;
