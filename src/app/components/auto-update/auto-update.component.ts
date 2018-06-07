@@ -38,6 +38,7 @@ export class AutoUpdateComponent implements OnInit {
     win32x64: 'https://s3-eu-west-1.amazonaws.com/gapminder-offline/Install%20Gapminder%20Offline-64.exe',
     win32ia32: 'https://s3-eu-west-1.amazonaws.com/gapminder-offline/Install%20Gapminder%20Offline-32.exe'
   };
+  fullUpdateRequest = false;
 
   private progressMap: Map<string, ProgressDescriptor> = new Map<string, ProgressDescriptor>();
 
@@ -47,8 +48,14 @@ export class AutoUpdateComponent implements OnInit {
   ngOnInit() {
     this.es.ipcRenderer.send('check-version');
 
+    this.es.ipcRenderer.on('full-update-request', (event: any, versionDescriptor: VersionDescriptor) => {
+      this.versionDescriptor = versionDescriptor;
+      this.fullUpdateRequest = true;
+    });
+
     this.es.ipcRenderer.on('request-and-update', (event: any, versionDescriptor: VersionDescriptor) => {
       this.versionDescriptor = versionDescriptor;
+      this.fullUpdateRequest = false;
 
       if (versionDescriptor.actualVersionGenericUpdate) {
         this.requestToUpdate = true;
@@ -112,8 +119,8 @@ export class AutoUpdateComponent implements OnInit {
     this.requestToUpdate = false;
   }
 
-  processExitAndFinishUpdateRequest() {
-    this.es.ipcRenderer.send('exit-and-update');
+  exitAfterUpdate() {
+    this.es.ipcRenderer.send('exit-after-update');
   }
 
   resetError() {
@@ -127,6 +134,8 @@ export class AutoUpdateComponent implements OnInit {
   cancel() {
     this.requestToUpdate = false;
     this.requestToDatasetUpdate = false;
+    this.requestToExitAndFinishUpdate = false;
+    this.fullUpdateRequest = false;
   }
 
   private getTotalProgress(): number {

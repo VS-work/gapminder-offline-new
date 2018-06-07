@@ -5,6 +5,7 @@ import * as fs from 'fs';
 import * as request from 'request';
 import * as semver from 'semver';
 import * as fsExtra from 'fs-extra';
+import * as childProcess from 'child_process';
 import * as onlineBranchExist from 'online-branch-exist';
 import * as electronEasyUpdater from 'electron-easy-updater';
 import { parallel } from 'async';
@@ -18,6 +19,8 @@ import {
   FEED_VERSION_URL_TEST_TEMP,
   FEED_URL_TEMP
 } from './auto-update-config';
+
+process.noAsar = true;
 
 const packageJSON = require('./package.json');
 const ga = new GoogleAnalytics(packageJSON.googleAnalyticsId, app.getVersion());
@@ -69,19 +72,35 @@ const FEED_VERSION_URL = autoUpdateTestMode ? FEED_VERSION_URL_TEST_TEMP : FEED_
 const FEED_URL = FEED_URL_TEMP.replace(/#type#/g, getTypeByOsAndArch(process.platform, process.arch));
 const DS_FEED_VERSION_URL = DS_FEED_VERSION_URL_TEMP;
 const DS_FEED_URL = DS_FEED_URL_TEMP;
-const UPDATE_FLAG_FILE = `${dirs[process.platform]}update-required`;
+const SAVED_APP = `${dirs[process.platform]}saved-app`;
 const CACHE_APP_DIR = `${dirs[process.platform]}cache-app`;
 const CACHE_DS_DIR = `${dirs[process.platform]}cache-ds`;
 
-function rollback() {
+function rollbackUpdate(event) {
   try {
     fsExtra.removeSync(CACHE_APP_DIR);
     fsExtra.removeSync(CACHE_DS_DIR);
+    fsExtra.copySync(SAVED_APP, `${dirs[process.platform]}resources`);
+    event.sender.send('update-complete', null);
   } catch (e) {
+    console.log(e);
+  }
+}
+
+function finishUpdate(event) {
+  try {
+    fsExtra.copySync(`${CACHE_APP_DIR}/Gapminder Offline-linux/resources`, `${dirs[process.platform]}resources`);
+    fsExtra.removeSync(CACHE_APP_DIR);
+    fsExtra.removeSync(CACHE_DS_DIR);
+    fsExtra.removeSync(SAVED_APP);
+    event.sender.send('update-complete', null);
+  } catch (e) {
+    console.log(e);
   }
 }
 
 function startUpdate(event) {
+  fsExtra.copySync(`${dirs[process.platform]}resources`, SAVED_APP);
   const getLoader = (cacheDir, releaseArchive, updateProcessDescriptor) => cb => {
     if (!updateProcessDescriptor || !updateProcessDescriptor.version) {
       cb();
@@ -133,15 +152,10 @@ function startUpdate(event) {
     getLoader(CACHE_DS_DIR, RELEASE_DS_ARCHIVE, updateProcessDsDescriptor)
   ], err => {
     if (err) {
-      rollback();
-      return;
+      rollbackUpdate(event);
+    } else {
+      finishUpdate(event);
     }
-
-    fs.writeFile(UPDATE_FLAG_FILE, 'need-to-update', () => {
-      // ///////////////// finish update
-
-      event.sender.send('update-complete', null);
-    });
   });
 }
 
@@ -242,7 +256,11 @@ function createWindow() {
 
       if (actualVersionGenericUpdate) {
         if (versionDiffType === 'major' || versionDiffType === 'minor') {
-          event.sender.send('update-complete', null);
+          event.sender.send('full-update-request', {
+            actualVersionGenericUpdate,
+            os: process.platform,
+            arch: process.arch
+          });
         }
 
         updateProcessAppDescriptor = new UpdateProcessDescriptor(actualVersionGenericUpdate, FEED_URL);
@@ -294,6 +312,19 @@ function createWindow() {
     }
 
     startUpdate(event);
+  });
+
+  ipc.on('exit-after-update', () => {
+    childProcess.spawn(
+      './gapminder-offline',
+      [],
+      {
+        cwd: dirs[process.platform],
+        stdio: 'ignore',
+        detached: true
+      }
+    ).unref();
+    app.quit();
   });
 
   ipc.on('do-open', openFileWithDialog);
