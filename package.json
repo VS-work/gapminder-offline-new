@@ -1,12 +1,13 @@
 {
   "name": "gapminder-offline",
-  "version": "3.0.0",
-  "description": "Angular 6 with Electron (Typescript + SASS + Hot Reload)",
-  "homepage": "https://github.com/maximegris/angular-electron",
-  "author": {
-    "name": "Maxime GRIS",
-    "email": "maxime.gris@gmail.com"
+  "version": "4.0.0",
+  "description": "Gapminder Tools Offline",
+  "author": "Vyacheslav Chub <vyacheslav.chub@valor-software.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/VS-work/gapminder-offline-new.git"
   },
+  "license": "GPL-3.0",
   "keywords": [
     "angular",
     "angular 6",
@@ -15,6 +16,7 @@
     "sass"
   ],
   "main": "main.js",
+  "googleAnalyticsId": "UA-67908993-4",
   "private": true,
   "scripts": {
     "postinstall": "npx electron-builder install-app-deps",
@@ -27,9 +29,11 @@
     "electron:tsc": "tsc main.ts",
     "electron:serve": "wait-on http-get://localhost:4200/ && npm run electron:tsc && electron . --serve",
     "electron:local": "npm run build:prod && electron .",
-    "electron:linux": "npm run build:prod && npx electron-builder build --linux",
+    "electron:linux": "npm run build:prod && npx electron-builder build --linux && ./scripts/additional-copy-linux",
     "electron:windows": "npm run build:prod && npx electron-builder build --windows",
-    "electron:mac": "npm run build:prod && npx electron-builder build --mac",
+    "electron:windows32": "npm run build:prod && npx electron-builder build --windows --ia32",
+    "electron:mac": "npm run build:prod && npx electron-builder build --mac && ./scripts/additional-copy-mac",
+    "package-dmg": "node package-dmg.js",
     "test": "ng test",
     "e2e": "ng e2e"
   },
@@ -37,8 +41,8 @@
     "async": "2.6.0",
     "async-waterfall": "0.1.5",
     "csv-parse": "2.0.0",
-    "ddf-validation": "1.17.0",
-    "electron-easy-updater": "0.4.10",
+    "ddf-validation": "1.17.1",
+    "electron-easy-updater": "0.5.0",
     "fs-extra": "6.0.1",
     "is-online": "7.0.0",
     "lodash": "4.17.4",
@@ -46,7 +50,7 @@
     "online-branch-exist": "2.0.2",
     "semver": "5.5.0",
     "vizabi-ddfcsv-reader": "2.2.1",
-    "universal-analytics": "^0.4.16",
+    "universal-analytics": "0.4.16",
     "urlon": "3.0.1",
     "zip-dir": "1.0.2"
   },
@@ -100,5 +104,8 @@
     "vizabi-config-systema_globalis": "2.2.5",
     "vizabi-linechart": "2.0.6",
     "vizabi-mountainchart": "2.0.4"
+  },
+  "optionalDependencies": {
+    "appdmg": "0.4.5"
   }
 }

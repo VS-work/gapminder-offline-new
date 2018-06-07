@@ -83,7 +83,7 @@ export class AutoUpdateComponent implements OnInit {
       this.onAutoUpdateProgress.emit();
     });
 
-    this.es.ipcRenderer.on('unpack-complete', (event: any, error: string) => {
+    this.es.ipcRenderer.on('update-complete', (event: any, error: string) => {
       if (error) {
         console.log(error);
       }

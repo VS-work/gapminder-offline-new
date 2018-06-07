@@ -1,26 +1,149 @@
-import { app, BrowserWindow, ipcMain as ipc, screen } from 'electron';
+import { app, BrowserWindow, ipcMain as ipc } from 'electron';
 import * as path from 'path';
-import * as url from 'url';
+import * as urlLib from 'url';
 import * as fs from 'fs';
-// import * as semver from 'semver';
+import * as request from 'request';
+import * as semver from 'semver';
+import * as fsExtra from 'fs-extra';
+import * as onlineBranchExist from 'online-branch-exist';
+import * as electronEasyUpdater from 'electron-easy-updater';
+import { parallel } from 'async';
 import { DdfValidatorWrapper } from './ddf-validator-wrapper';
 import { exportForWeb, openFileWhenDoubleClick, openFileWithDialog, saveAllTabs, saveFile } from './file-management';
+import { GoogleAnalytics } from './google-analytics';
+import {
+  DS_FEED_URL_TEMP,
+  DS_FEED_VERSION_URL_TEMP,
+  DS_TAG_TEMP, FEED_VERSION_URL_TEMP,
+  FEED_VERSION_URL_TEST_TEMP,
+  FEED_URL_TEMP
+} from './auto-update-config';
+
+const packageJSON = require('./package.json');
+const ga = new GoogleAnalytics(packageJSON.googleAnalyticsId, app.getVersion());
 
 const args = process.argv.slice(1);
-const PRESETS_FILE = __dirname + '/presets.json';
 const devMode = process.argv.length > 1 && process.argv.indexOf('dev') > 0;
-const autoUpdateTestMode = process.argv.length > 1 && process.argv.indexOf('au-test') > 0;
+// const autoUpdateTestMode = process.argv.length > 1 && process.argv.indexOf('au-test') > 0;
+const autoUpdateTestMode = true;
 
 const nonAsarAppPath = app.getAppPath().replace(/app\.asar/, '');
 const dataPackage = require(path.resolve(nonAsarAppPath, 'ddf--gapminder--systema_globalis/datapackage.json'));
+const serve = args.some(val => val === '--serve');
 
 let mainWindow;
-let serve;
+let updateProcessAppDescriptor;
+let updateProcessDsDescriptor;
 let currentFile;
 let ddfValidatorWrapper;
 
+class UpdateProcessDescriptor {
+  constructor(public version: string, public url: string = FEED_URL) {
+  }
+}
 
-serve = args.some(val => val === '--serve');
+const currentDir = path.resolve(__dirname, '..', '..');
+const dirs = {
+  linux: currentDir + path.sep,
+  darwin: __dirname + path.sep,
+  win32: currentDir + path.sep
+};
+const getTypeByOsAndArch = (os, arch) => {
+  if (os === 'win32' && arch === 'x64') {
+    return 'win64';
+  }
+
+  if (os === 'win32' && arch === 'ia32') {
+    return 'win32';
+  }
+
+  if (os === 'darwin') {
+    return 'mac';
+  }
+
+  return os;
+};
+const RELEASE_APP_ARCHIVE = 'release-app.zip';
+const RELEASE_DS_ARCHIVE = 'release-ds.zip';
+const FEED_VERSION_URL = autoUpdateTestMode ? FEED_VERSION_URL_TEST_TEMP : FEED_VERSION_URL_TEMP;
+const FEED_URL = FEED_URL_TEMP.replace(/#type#/g, getTypeByOsAndArch(process.platform, process.arch));
+const DS_FEED_VERSION_URL = DS_FEED_VERSION_URL_TEMP;
+const DS_FEED_URL = DS_FEED_URL_TEMP;
+const UPDATE_FLAG_FILE = `${dirs[process.platform]}update-required`;
+const CACHE_APP_DIR = `${dirs[process.platform]}cache-app`;
+const CACHE_DS_DIR = `${dirs[process.platform]}cache-ds`;
+
+function rollback() {
+  try {
+    fsExtra.removeSync(CACHE_APP_DIR);
+    fsExtra.removeSync(CACHE_DS_DIR);
+  } catch (e) {
+  }
+}
+
+function startUpdate(event) {
+  const getLoader = (cacheDir, releaseArchive, updateProcessDescriptor) => cb => {
+    if (!updateProcessDescriptor || !updateProcessDescriptor.version) {
+      cb();
+      return;
+    }
+
+    const releaseUrl = updateProcessDescriptor.url.replace('#version#', updateProcessDescriptor.version);
+
+    ga.event('Run', `starting and trying auto update from ${app.getVersion()} to ${updateProcessDescriptor.version}`);
+
+    electronEasyUpdater.download({
+        url: releaseUrl,
+        version: app.getVersion(),
+        path: cacheDir,
+        file: releaseArchive
+      }, progress => {
+        event.sender.send('download-progress', {progress, cacheDir});
+      },
+      err => {
+        if (err) {
+          event.sender.send('auto-update-error', err);
+          ga.error('auto update -> download error: ' + err);
+
+          cb(err);
+          return;
+        }
+
+        electronEasyUpdater.unpack({
+            directory: cacheDir,
+            file: releaseArchive
+          },
+          progress => {
+            event.sender.send('unpack-progress', {progress, cacheDir});
+          },
+          unpackErr => {
+            if (unpackErr) {
+              ga.error('auto update -> unpacking error: ' + unpackErr);
+              event.sender.send('auto-update-error', unpackErr);
+            }
+
+            cb(unpackErr);
+          });
+      }
+    );
+  };
+
+  parallel([
+    getLoader(CACHE_APP_DIR, RELEASE_APP_ARCHIVE, updateProcessAppDescriptor),
+    getLoader(CACHE_DS_DIR, RELEASE_DS_ARCHIVE, updateProcessDsDescriptor)
+  ], err => {
+    if (err) {
+      rollback();
+      return;
+    }
+
+    fs.writeFile(UPDATE_FLAG_FILE, 'need-to-update', () => {
+      // ///////////////// finish update
+
+      event.sender.send('update-complete', null);
+    });
+  });
+}
 
 function createWindow() {
   const isFileArgumentValid = fileName => fs.existsSync(fileName) && fileName.indexOf('-psn_') === -1;
@@ -33,7 +156,7 @@ function createWindow() {
     });
     mainWindow.loadURL('http://localhost:4200');
   } else {
-    mainWindow.loadURL(url.format({
+    mainWindow.loadURL(urlLib.format({
       pathname: path.join(__dirname, 'dist/index.html'),
       protocol: 'file:',
       slashes: true
@@ -84,8 +207,8 @@ function createWindow() {
   });
 
   ipc.on('get-supported-versions', event => {
-    /*request.get(FEED_VERSION_URL, (error, response, body) => {
-      if (!error && response.statusCode == 200) {
+    request.get(FEED_VERSION_URL, (error, response, body) => {
+      if (!error && response.statusCode === 200) {
         try {
           const config = JSON.parse(body);
 
@@ -93,23 +216,11 @@ function createWindow() {
         } catch (e) {
         }
       }
-    });*/
+    });
   });
 
   ipc.on('request-custom-update', (event, actualVersionGenericUpdate) => {
     event.sender.send('request-and-update', {actualVersionGenericUpdate, os: process.platform, arch: process.arch});
-  });
-
-  ipc.on('presets-export', (event, content) => {
-    fs.writeFile(PRESETS_FILE, content, err => {
-      event.sender.send('presets-export-end', err);
-    });
-  });
-
-  ipc.on('do-presets-import', event => {
-    fs.readFile(PRESETS_FILE, 'utf8', (err, content) => {
-      event.sender.send('presets-import', {err, content});
-    });
   });
 
   ipc.on('do-open-validation-window', event => {
@@ -120,14 +231,69 @@ function createWindow() {
     mainWindow.webContents.openDevTools();
   });
 
-  ipc.on('prepare-update', (event, version) => {
-    /*if (version) {
-      const url = semver.diff(app.getVersion(), version) === 'patch' ? PARTIAL_FEED_URL : FEED_URL;
+  ipc.on('check-version', event => {
+    electronEasyUpdater.versionCheck({
+      url: FEED_VERSION_URL,
+      version: app.getVersion()
+    }, (errGenericUpdate, actualVersionGenericUpdate, versionDiffType) => {
+      if (errGenericUpdate) {
+        return;
+      }
 
-      updateProcessAppDescriptor = new UpdateProcessDescriptor(version, url);
+      if (actualVersionGenericUpdate) {
+        if (versionDiffType === 'major' || versionDiffType === 'minor') {
+          event.sender.send('update-complete', null);
+        }
+
+        updateProcessAppDescriptor = new UpdateProcessDescriptor(actualVersionGenericUpdate, FEED_URL);
+      }
+
+      electronEasyUpdater.versionCheck({
+        url: DS_FEED_VERSION_URL,
+        version: dataPackage.version
+      }, (errDsUpdate, actualVersionDsUpdateParam) => {
+        if (errDsUpdate) {
+          return;
+        }
+
+        let actualVersionDsUpdate = null;
+
+        if (actualVersionDsUpdateParam || actualVersionGenericUpdate) {
+          if (actualVersionDsUpdateParam && semver.valid(actualVersionDsUpdateParam)) {
+            const tagVersion = DS_TAG_TEMP.replace(/#version#/, actualVersionDsUpdateParam);
+
+            onlineBranchExist.tag(tagVersion, (err, res) => {
+              if (res) {
+                actualVersionDsUpdate = actualVersionDsUpdateParam;
+              }
+
+              updateProcessDsDescriptor = new UpdateProcessDescriptor(actualVersionDsUpdate, DS_FEED_URL);
+
+              event.sender.send('request-to-update', {
+                actualVersionDsUpdate,
+                actualVersionGenericUpdate,
+                os: process.platform,
+                arch: process.arch
+              });
+            });
+          } else {
+            event.sender.send('request-to-update', {
+              actualVersionGenericUpdate,
+              os: process.platform,
+              arch: process.arch
+            });
+          }
+        }
+      });
+    });
+  });
+
+  ipc.on('prepare-update', (event, version) => {
+    if (version) {
+      updateProcessAppDescriptor = new UpdateProcessDescriptor(version, FEED_URL);
     }
 
-    startUpdate(event);*/
+    startUpdate(event);
   });
 
   ipc.on('do-open', openFileWithDialog);
@@ -136,14 +302,14 @@ function createWindow() {
   ipc.on('do-export-for-web', exportForWeb);
 
   ipc.on('new-chart', (event, chartType) => {
-    // ga.chartEvent(chartType);
+    ga.chartEvent(chartType);
   });
   ipc.on('new-chart', (event, chartType) => {
-    // ga.chartEvent(chartType);
+    ga.chartEvent(chartType);
   });
 
   ipc.on('modify-chart', (event, action) => {
-    // ga.chartChangingEvent(action);
+    ga.chartChangingEvent(action);
   });
 
   ipc.on('start-validation', (event, params) => {
@@ -162,33 +328,44 @@ function createWindow() {
   });
 }
 
-try {
-  app.on('ready', createWindow);
+app.on('ready', createWindow);
 
-  app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-      app.quit();
+app.on('window-all-closed', () => {
+  app.quit();
+});
+
+const isSecondInstance = app.makeSingleInstance((commandLine) => {
+  if (mainWindow) {
+    if (mainWindow.isMinimized()) {
+      mainWindow.restore();
     }
-  });
 
-  app.on('activate', () => {
-    if (mainWindow === null) {
-      createWindow();
+    mainWindow.focus();
+
+    if (commandLine.length > 1) {
+      openFileWhenDoubleClick(mainWindow, commandLine[1]);
     }
-  });
+  }
+});
 
-  app.on('open-file', (event, filePath) => {
-    event.preventDefault();
-
-    if (mainWindow && mainWindow.webContents) {
-      openFileWhenDoubleClick(mainWindow, filePath);
-    } else {
-      if (!devMode && !autoUpdateTestMode) {
-        currentFile = filePath;
-      }
-    }
-  });
-} catch (e) {
-  // Catch Error
-  // throw e;
+if (isSecondInstance) {
+  app.quit();
 }
+
+app.on('activate', () => {
+  if (mainWindow === null) {
+    createWindow();
+  }
+});
+
+app.on('open-file', (event, filePath) => {
+  event.preventDefault();
+
+  if (mainWindow && mainWindow.webContents) {
+    openFileWhenDoubleClick(mainWindow, filePath);
+  } else {
+    if (!devMode && !autoUpdateTestMode) {
+      currentFile = filePath;
+    }
+  }
+});

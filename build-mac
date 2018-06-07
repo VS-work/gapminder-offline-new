@@ -1,0 +1,15 @@
+rm -r ./app-builds
+rm -r ./dist
+npm run electron:mac
+cd app-builds
+cd ./mac
+codesign --deep --force --verbose --sign 'Developer ID Application: Stiftelsen Gapminder (J7SD4Z498H)' ./Gapminder\ Offline.app
+zip --symlinks -r ./Gapminder\ Offline-mac.zip ./Gapminder\ Offline.app
+cd ..
+mkdir -p partial/mac/Gapminder\ Offline.app/Contents/Resources
+cp -R ./mac/Gapminder\ Offline.app/Contents/Resources ./partial/mac/Gapminder\ Offline.app/Contents
+rm -r ./partial/mac/Gapminder\ Offline.app/Contents/Resources/ddf--gapminder--systema_globalis
+cd partial/mac
+zip --symlinks -r ./Gapminder\ Offline-mac.zip ./Gapminder\ Offline.app
+cd ../../..
+npm run package-dmg

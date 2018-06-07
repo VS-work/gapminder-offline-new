@@ -24,6 +24,7 @@ import { initMenuComponent } from '../menu/system-menu';
 import { getMenuActions } from '../menu/menu-actions';
 import { FreshenerService } from '../tab-freshener/freshener.service';
 import { ElectronService } from '../../providers/electron.service';
+import { TabDataDescriptor } from '../descriptors/tab-data.descriptor';
 
 @Component({
   selector: 'app-home',
@@ -63,17 +64,19 @@ export class HomeComponent implements OnInit {
     this.messageService.getMessage()
       .subscribe((event: any) => {
         if (event.message === OPEN_DDF_FOLDER_ACTION) {
-          /*this.ddfDatasetConfigModal.hide();
+          this.ddfDatasetConfigModal.hide();
 
           if (event.options && event.options.selectedFolder && event.options.chartType) {
             const firstFilePath = event.options.selectedFolder;
 
             if (firstFilePath) {
+              const tabDataDescriptor: TabDataDescriptor = {};
+
               this.chartService.ddfFolderDescriptor.ddfUrl = firstFilePath;
-              this.chartService.setReaderDefaults(this.chartService.ddfFolderDescriptor);
+              this.chartService.setReaderDefaults(tabDataDescriptor);
 
               const newTab = new TabModel(event.options.chartType, false);
-              const chartIssue = this.chartService.newChart(newTab, this.chartService.ddfFolderDescriptor, false);
+              const chartIssue = this.chartService.newChart(newTab, tabDataDescriptor, false);
 
               this.tabsModel.forEach((tab: TabModel) => tab.active = false);
 
@@ -82,14 +85,14 @@ export class HomeComponent implements OnInit {
               this.tabsModel.push(newTab);
 
               if (chartIssue) {
-                remote.dialog.showErrorBox('Error',
+                this.es.remote.dialog.showErrorBox('Error',
                   `Could not open DDF folder ${this.chartService.ddfFolderDescriptor.ddfUrl}, because ${chartIssue}`);
               }
 
-              ipcRenderer.send('new-chart', this.getCurrentTab().chartType + ' by DDF folder');
+              this.es.ipcRenderer.send('new-chart', this.getCurrentTab().chartType + ' by DDF folder');
               this.doDetectChanges();
             }
-          }*/
+          }
         }
 
         if (event.message === SWITCH_MENU_ACTION) {
