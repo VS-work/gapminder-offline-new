@@ -48,7 +48,7 @@ class UpdateProcessDescriptor {
 const currentDir = path.resolve(__dirname, '..', '..');
 const dirs = {
   linux: currentDir + path.sep,
-  darwin: __dirname + path.sep,
+  darwin: __dirname.replace(/app\.asar/, '') + path.sep,
   win32: currentDir + path.sep
 };
 const getTypeByOsAndArch = (os, arch) => {
@@ -100,7 +100,13 @@ function finishUpdate(event) {
 }
 
 function startUpdate(event) {
-  fsExtra.copySync(`${dirs[process.platform]}resources`, SAVED_APP);
+  const resourcesDirs = {
+    linux: `${dirs[process.platform]}resources`,
+    darwin: dirs[process.platform],
+    win32: currentDir + path.sep
+  };
+
+  fsExtra.copySync(resourcesDirs[process.platform], SAVED_APP);
   const getLoader = (cacheDir, releaseArchive, updateProcessDescriptor) => cb => {
     if (!updateProcessDescriptor || !updateProcessDescriptor.version) {
       cb();
