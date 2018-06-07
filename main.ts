@@ -47,9 +47,9 @@ class UpdateProcessDescriptor {
 
 const currentDir = path.resolve(__dirname, '..', '..');
 const dirs = {
-  linux: currentDir + path.sep,
-  darwin: __dirname.replace(/app\.asar/, '') + path.sep,
-  win32: currentDir + path.sep
+  linux: currentDir,
+  darwin: path.resolve(__dirname.replace(/\/app\.asar/, ''), '..', '..'),
+  win32: currentDir
 };
 const getTypeByOsAndArch = (os, arch) => {
   if (os === 'win32' && arch === 'x64') {
@@ -72,15 +72,15 @@ const FEED_VERSION_URL = autoUpdateTestMode ? FEED_VERSION_URL_TEST_TEMP : FEED_
 const FEED_URL = FEED_URL_TEMP.replace(/#type#/g, getTypeByOsAndArch(process.platform, process.arch));
 const DS_FEED_VERSION_URL = DS_FEED_VERSION_URL_TEMP;
 const DS_FEED_URL = DS_FEED_URL_TEMP;
-const SAVED_APP = `${dirs[process.platform]}saved-app`;
-const CACHE_APP_DIR = `${dirs[process.platform]}cache-app`;
-const CACHE_DS_DIR = `${dirs[process.platform]}cache-ds`;
+const SAVED_APP = `${dirs[process.platform]}/saved-app`;
+const CACHE_APP_DIR = `${dirs[process.platform]}/cache-app`;
+const CACHE_DS_DIR = `${dirs[process.platform]}/cache-ds`;
 
 function rollbackUpdate(event) {
   try {
-    fsExtra.removeSync(CACHE_APP_DIR);
-    fsExtra.removeSync(CACHE_DS_DIR);
-    fsExtra.copySync(SAVED_APP, `${dirs[process.platform]}resources`);
+    //fsExtra.removeSync(CACHE_APP_DIR);
+    //fsExtra.removeSync(CACHE_DS_DIR);
+    //fsExtra.copySync(SAVED_APP, `${dirs[process.platform]}resources`);
     event.sender.send('update-complete', null);
   } catch (e) {
     console.log(e);
@@ -88,11 +88,21 @@ function rollbackUpdate(event) {
 }
 
 function finishUpdate(event) {
+  const from = {
+    linux: `${CACHE_APP_DIR}/Gapminder Offline-linux/resources`,
+    darwin: path.resolve(CACHE_APP_DIR, 'Gapminder Offline.app', 'Contents', 'Resources'),
+    win32: ''
+  };
+  const to = {
+    linux: `${dirs[process.platform]}resources`,
+    darwin: path.resolve(dirs[process.platform], 'Contents', 'Resources'),
+    win32: ''    
+  };
   try {
-    fsExtra.copySync(`${CACHE_APP_DIR}/Gapminder Offline-linux/resources`, `${dirs[process.platform]}resources`);
-    fsExtra.removeSync(CACHE_APP_DIR);
-    fsExtra.removeSync(CACHE_DS_DIR);
-    fsExtra.removeSync(SAVED_APP);
+    fsExtra.copySync(from[process.platform], to[process.platform]);
+    //fsExtra.removeSync(CACHE_APP_DIR);
+    //fsExtra.removeSync(CACHE_DS_DIR);
+    //fsExtra.removeSync(SAVED_APP);
     event.sender.send('update-complete', null);
   } catch (e) {
     console.log(e);
@@ -102,9 +112,11 @@ function finishUpdate(event) {
 function startUpdate(event) {
   const resourcesDirs = {
     linux: `${dirs[process.platform]}resources`,
-    darwin: dirs[process.platform],
+    darwin: `${dirs[process.platform]}/Contents/Resources`,
     win32: currentDir + path.sep
   };
+
+  console.log(resourcesDirs[process.platform], SAVED_APP);
 
   fsExtra.copySync(resourcesDirs[process.platform], SAVED_APP);
   const getLoader = (cacheDir, releaseArchive, updateProcessDescriptor) => cb => {
@@ -322,7 +334,8 @@ function createWindow() {
 
   ipc.on('exit-after-update', () => {
     childProcess.spawn(
-      './gapminder-offline',
+      //'./gapminder-offline',
+      path.resolve(dirs[process.platform], 'Contents', 'MacOS', 'Gapminder Offline'),
       [],
       {
         cwd: dirs[process.platform],
