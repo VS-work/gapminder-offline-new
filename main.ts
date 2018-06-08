@@ -113,7 +113,7 @@ function startUpdate(event) {
   const resourcesDirs = {
     linux: `${dirs[process.platform]}resources`,
     darwin: `${dirs[process.platform]}/Contents/Resources`,
-    win32: `${dirs[process.platform]}resources`,
+    win32: `${dirs[process.platform]}/resources`,
   };
 
   console.log(resourcesDirs[process.platform], SAVED_APP);
