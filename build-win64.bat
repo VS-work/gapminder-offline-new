@@ -32,6 +32,8 @@ copy .\node_modules\vizabi-mountainchart\build\mountainchart.js .\app-builds\win
 copy .\node_modules\vizabi-linechart\build\linechart.css .\app-builds\win-unpacked\resources\export-template\libs
 copy .\node_modules\vizabi-linechart\build\linechart.js .\app-builds\win-unpacked\resources\export-template\libs
 
+copy .\updater-win64 .\app-builds\win-unpacked
+
 rem ############
 
 cd .\app-builds

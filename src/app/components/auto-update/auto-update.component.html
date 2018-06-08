@@ -21,7 +21,7 @@
 <div *ngIf="!error && requestToExitAndFinishUpdate">
     <div class="label">Press OK and wait — the app will restart automatically.</div>
     <span>
-      <input type="button" (click)="exitAfterUpdate()" value="OK" class="btn" />
+      <input type="button" (click)="exitAndUpdate()" value="OK" class="btn" />
     </span>
 </div>
 <div *ngIf="error">

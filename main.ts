@@ -72,53 +72,55 @@ const FEED_VERSION_URL = autoUpdateTestMode ? FEED_VERSION_URL_TEST_TEMP : FEED_
 const FEED_URL = FEED_URL_TEMP.replace(/#type#/g, getTypeByOsAndArch(process.platform, process.arch));
 const DS_FEED_VERSION_URL = DS_FEED_VERSION_URL_TEMP;
 const DS_FEED_URL = DS_FEED_URL_TEMP;
-const SAVED_APP = `${dirs[process.platform]}/saved-app`;
+// const SAVED_APP = `${dirs[process.platform]}/saved-app`;
 const CACHE_APP_DIR = `${dirs[process.platform]}/cache-app`;
 const CACHE_DS_DIR = `${dirs[process.platform]}/cache-ds`;
+const UPDATE_PROCESS_FLAG_FILE = `${dirs[process.platform]}/updating`;
+const UPDATE_FLAG_FILE = `${dirs[process.platform]}/update-required`;
 
-function rollbackUpdate(event) {
+function rollback() {
   try {
-    //fsExtra.removeSync(CACHE_APP_DIR);
-    //fsExtra.removeSync(CACHE_DS_DIR);
-    //fsExtra.copySync(SAVED_APP, `${dirs[process.platform]}resources`);
-    event.sender.send('update-complete', null);
+    fsExtra.removeSync(CACHE_APP_DIR);
+    fsExtra.removeSync(CACHE_DS_DIR);
   } catch (e) {
     console.log(e);
   }
 }
 
-function finishUpdate(event) {
-  const from = {
-    linux: `${CACHE_APP_DIR}/Gapminder Offline-linux/resources`,
-    darwin: path.resolve(CACHE_APP_DIR, 'Gapminder Offline.app', 'Contents', 'Resources'),
-    win32: `${CACHE_APP_DIR}/resources`,
-  };
-  const to = {
-    linux: `${dirs[process.platform]}resources`,
-    darwin: path.resolve(dirs[process.platform], 'Contents', 'Resources'),
-    win32: `${dirs[process.platform]}/resources`
-  };
-  try {
-    console.log(from[process.platform], to[process.platform]);
+function finishUpdate() {
+  fs.writeFileSync(UPDATE_PROCESS_FLAG_FILE, 'updating');
 
-    fsExtra.copySync(from[process.platform], to[process.platform]);
-    //fsExtra.removeSync(CACHE_APP_DIR);
-    //fsExtra.removeSync(CACHE_DS_DIR);
-    //fsExtra.removeSync(SAVED_APP);
-    event.sender.send('update-complete', null);
-  } catch (e) {
-    console.log(e);
+  if (process.platform !== 'win32') {
+    const updateCommand = dirs[process.platform] + '/updater';
+
+    childProcess.spawn(
+      updateCommand,
+      [],
+      {
+        cwd: dirs[process.platform],
+        stdio: 'ignore',
+        detached: true
+      }
+    ).unref();
   }
+
+  if (process.platform === 'win32') {
+    childProcess.spawn(
+      'wscript.exe',
+      ['"invisible.vbs"', '"updater-' + getTypeByOsAndArch(process.platform, process.arch) + '.exe"'],
+      {
+        windowsVerbatimArguments: true,
+        cwd: dirs[process.platform],
+        stdio: 'ignore',
+        detached: true
+      }
+    ).unref();
+  }
+
+  app.quit();
 }
 
 function startUpdate(event) {
-  const resourcesDirs = {
-    linux: `${dirs[process.platform]}resources`,
-    darwin: `${dirs[process.platform]}/Contents/Resources`,
-    win32: `${dirs[process.platform]}/resources`,
-  };
-
-  fsExtra.copySync(resourcesDirs[process.platform], SAVED_APP);
   const getLoader = (cacheDir, releaseArchive, updateProcessDescriptor) => cb => {
     if (!updateProcessDescriptor || !updateProcessDescriptor.version) {
       cb();
@@ -170,10 +172,13 @@ function startUpdate(event) {
     getLoader(CACHE_DS_DIR, RELEASE_DS_ARCHIVE, updateProcessDsDescriptor)
   ], err => {
     if (err) {
-      rollbackUpdate(event);
-    } else {
-      finishUpdate(event);
+      rollback();
+      return;
     }
+
+    fs.writeFile(UPDATE_FLAG_FILE, 'need-to-update', () => {
+      event.sender.send('unpack-complete', null);
+    });
   });
 }
 
@@ -332,19 +337,8 @@ function createWindow() {
     startUpdate(event);
   });
 
-  ipc.on('exit-after-update', () => {
-    childProcess.spawn(
-      // './gapminder-offline',
-      // path.resolve(dirs[process.platform], 'Contents', 'MacOS', 'Gapminder Offline'),
-      path.resolve(dirs[process.platform], 'Gapminder Offline.exe'),
-      [],
-      {
-        cwd: dirs[process.platform],
-        stdio: 'ignore',
-        detached: true
-      }
-    ).unref();
-    app.quit();
+  ipc.on('exit-and-update', () => {
+    finishUpdate();
   });
 
   ipc.on('do-open', openFileWithDialog);
@@ -379,7 +373,29 @@ function createWindow() {
   });
 }
 
-app.on('ready', createWindow);
+app.on('ready', () => {
+  fs.readFile(UPDATE_PROCESS_FLAG_FILE, 'utf8', updatingFileDoesNotExist => {
+    if (updatingFileDoesNotExist) {
+      fs.readFile(UPDATE_FLAG_FILE, 'utf8', updateFileDoesNotExist => {
+        if (updateFileDoesNotExist) {
+          rollback();
+
+          ga.runEvent(false);
+
+          createWindow();
+          return;
+        }
+
+        ga.runEvent(true);
+
+        finishUpdate();
+      });
+    } else {
+      // don't run during update process!
+      app.quit();
+    }
+  });
+});
 
 app.on('window-all-closed', () => {
   app.quit();

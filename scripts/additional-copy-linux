@@ -33,3 +33,5 @@ cp ./node_modules/vizabi-mountainchart/build/mountainchart.js ./app-builds/linux
 
 cp ./node_modules/vizabi-linechart/build/linechart.css ./app-builds/linux-unpacked/resources/export-template/libs
 cp ./node_modules/vizabi-linechart/build/linechart.js ./app-builds/linux-unpacked/resources/export-template/libs
+
+cp ./updater-linux ./app-builds/linux-unpacked/updater

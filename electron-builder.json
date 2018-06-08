@@ -15,6 +15,7 @@
         "!hooks/",
         "!extra-data/",
         "!scripts/",
+        "!update-app-src",
         "!dmg-builder",
         "!.angular-cli.json",
         "!_config.yml",
