@@ -96,7 +96,7 @@ function finishUpdate(event) {
   const to = {
     linux: `${dirs[process.platform]}resources`,
     darwin: path.resolve(dirs[process.platform], 'Contents', 'Resources'),
-    win32: `${dirs[process.platform]}resources`
+    win32: `${dirs[process.platform]}/resources`
   };
   try {
     fsExtra.copySync(from[process.platform], to[process.platform]);
