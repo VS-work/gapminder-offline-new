@@ -91,12 +91,12 @@ function finishUpdate(event) {
   const from = {
     linux: `${CACHE_APP_DIR}/Gapminder Offline-linux/resources`,
     darwin: path.resolve(CACHE_APP_DIR, 'Gapminder Offline.app', 'Contents', 'Resources'),
-    win32: ''
+    win32: `${CACHE_APP_DIR}/resources`,
   };
   const to = {
     linux: `${dirs[process.platform]}resources`,
     darwin: path.resolve(dirs[process.platform], 'Contents', 'Resources'),
-    win32: ''    
+    win32: `${dirs[process.platform]}resources`
   };
   try {
     fsExtra.copySync(from[process.platform], to[process.platform]);
@@ -334,8 +334,9 @@ function createWindow() {
 
   ipc.on('exit-after-update', () => {
     childProcess.spawn(
-      //'./gapminder-offline',
-      path.resolve(dirs[process.platform], 'Contents', 'MacOS', 'Gapminder Offline'),
+      // './gapminder-offline',
+      // path.resolve(dirs[process.platform], 'Contents', 'MacOS', 'Gapminder Offline'),
+      path.resolve(dirs[process.platform], 'Gapminder Offline.exe'),
       [],
       {
         cwd: dirs[process.platform],
