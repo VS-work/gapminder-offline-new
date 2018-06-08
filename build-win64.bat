@@ -33,6 +33,7 @@ copy .\node_modules\vizabi-linechart\build\linechart.css .\app-builds\win-unpack
 copy .\node_modules\vizabi-linechart\build\linechart.js .\app-builds\win-unpacked\resources\export-template\libs
 
 copy .\updater-win64.exe .\app-builds\win-unpacked\updater-win64.exe
+copy .\invisible.vbs .\app-builds\win-unpacked\invisible.vbs
 
 rem ############
 
