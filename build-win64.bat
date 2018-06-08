@@ -46,7 +46,8 @@ call powershell.exe -nologo -noprofile -command "& {Rename-Item 'win-unpacked' '
 call powershell.exe -nologo -noprofile -command "& { Add-Type -A 'System.IO.Compression.FileSystem'; [IO.Compression.ZipFile]::CreateFromDirectory('Gapminder Offline-win64', 'Gapminder Offline-win64.zip'); }"
 mkdir "partial\Gapminder Offline-win64"
 call powershell.exe -nologo -noprofile -command "& {Copy-Item 'Gapminder Offline-win64\resources' -destination 'partial\Gapminder Offline-win64\resources' -recurse}"
-del /s /q ".\partial\Gapminder Offline-win64\resources\ddf--gapminder--systema_globalis"
+call powershell.exe -nologo -noprofile -command "& {Remove-Item -Recurse -Force 'partial\Gapminder Offline-win64\resources\ddf--gapminder--systema_globalis'}"
+rem del /s /q ".\partial\Gapminder Offline-win64\resources\ddf--gapminder--systema_globalis"
 cd partial
 call powershell.exe -nologo -noprofile -command "& { Add-Type -A 'System.IO.Compression.FileSystem'; [IO.Compression.ZipFile]::CreateFromDirectory('Gapminder Offline-win64', 'Gapminder Offline-win64.zip'); }"
 cd ../..
