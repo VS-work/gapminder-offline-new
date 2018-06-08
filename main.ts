@@ -99,6 +99,8 @@ function finishUpdate(event) {
     win32: `${dirs[process.platform]}/resources`
   };
   try {
+    console.log(from[process.platform], to[process.platform]);
+
     fsExtra.copySync(from[process.platform], to[process.platform]);
     //fsExtra.removeSync(CACHE_APP_DIR);
     //fsExtra.removeSync(CACHE_DS_DIR);
@@ -115,8 +117,6 @@ function startUpdate(event) {
     darwin: `${dirs[process.platform]}/Contents/Resources`,
     win32: `${dirs[process.platform]}/resources`,
   };
-
-  console.log(resourcesDirs[process.platform], SAVED_APP);
 
   fsExtra.copySync(resourcesDirs[process.platform], SAVED_APP);
   const getLoader = (cacheDir, releaseArchive, updateProcessDescriptor) => cb => {
