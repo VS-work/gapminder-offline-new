@@ -1,12 +1,14 @@
 import { app, BrowserWindow, ipcMain as ipc } from 'electron';
 import * as path from 'path';
-import * as urlLib from 'url';
 import * as fs from 'fs';
+import * as net from 'net';
+import * as urlLib from 'url';
 import * as request from 'request';
 import * as semver from 'semver';
+import * as gitclient from 'git-fetch-pack';
+import * as transport from 'git-transport-protocol';
 import * as fsExtra from 'fs-extra';
 import * as childProcess from 'child_process';
-import * as onlineBranchExist from 'online-branch-exist';
 import * as electronEasyUpdater from 'electron-easy-updater';
 import { parallel } from 'async';
 import { DdfValidatorWrapper } from './ddf-validator-wrapper';
@@ -15,7 +17,7 @@ import { GoogleAnalytics } from './google-analytics';
 import {
   DS_FEED_URL_TEMP,
   DS_FEED_VERSION_URL_TEMP,
-  DS_TAG_TEMP, FEED_VERSION_URL_TEMP,
+  FEED_VERSION_URL_TEMP,
   FEED_VERSION_URL_TEST_TEMP,
   FEED_URL_TEMP
 } from './auto-update-config';
@@ -39,6 +41,34 @@ let updateProcessAppDescriptor;
 let updateProcessDsDescriptor;
 let currentFile;
 let ddfValidatorWrapper;
+
+function getLatestGithubTag(inputParam: string, onTagReady: Function) {
+  const input = inputParam.replace(/^(?!(?:https|git):\/\/)/, 'https://');
+  const tcp = net.connect({host: urlLib.parse(input).host, port: 9418});
+  const client = gitclient(input);
+  const tags = [];
+
+  client.refs.on('data', ref => {
+    const name = ref.name;
+
+    if (/^refs\/tags/.test(name)) {
+      tags.push(name.split('/')[2].replace(/\^\{\}$/, '').substr(1));
+    }
+  });
+
+  client
+    .pipe(transport(tcp))
+    .on('error', err => onTagReady(err))
+    .pipe(client)
+    .on('error', err => onTagReady(err))
+    .once('end', () => {
+      if (tags.length === 0) {
+        return onTagReady(Error('Tags are missing'));
+      }
+
+      onTagReady(null, tags.sort().reverse()[0]);
+    });
+}
 
 class UpdateProcessDescriptor {
   constructor(public version: string, public url: string = FEED_URL) {
@@ -72,7 +102,6 @@ const FEED_VERSION_URL = autoUpdateTestMode ? FEED_VERSION_URL_TEST_TEMP : FEED_
 const FEED_URL = FEED_URL_TEMP.replace(/#type#/g, getTypeByOsAndArch(process.platform, process.arch));
 const DS_FEED_VERSION_URL = DS_FEED_VERSION_URL_TEMP;
 const DS_FEED_URL = DS_FEED_URL_TEMP;
-// const SAVED_APP = `${dirs[process.platform]}/saved-app`;
 const CACHE_APP_DIR = `${dirs[process.platform]}/cache-app`;
 const CACHE_DS_DIR = `${dirs[process.platform]}/cache-ds`;
 const UPDATE_PROCESS_FLAG_FILE = `${dirs[process.platform]}/updating`;
@@ -289,33 +318,23 @@ function createWindow() {
         updateProcessAppDescriptor = new UpdateProcessDescriptor(actualVersionGenericUpdate, FEED_URL);
       }
 
-      electronEasyUpdater.versionCheck({
-        url: DS_FEED_VERSION_URL,
-        version: dataPackage.version
-      }, (errDsUpdate, actualVersionDsUpdateParam) => {
-        if (errDsUpdate) {
-          return;
-        }
-
+      const [, , , dsGithubOwner, dsGithubRepo] = DS_FEED_VERSION_URL.split('/');
+      const requestToUpdate = (actualVersionDsUpdateParam?: string) => {
         let actualVersionDsUpdate = null;
 
         if (actualVersionDsUpdateParam || actualVersionGenericUpdate) {
           if (actualVersionDsUpdateParam && semver.valid(actualVersionDsUpdateParam)) {
-            const tagVersion = DS_TAG_TEMP.replace(/#version#/, actualVersionDsUpdateParam);
+            if (actualVersionDsUpdateParam) {
+              actualVersionDsUpdate = actualVersionDsUpdateParam;
+            }
 
-            onlineBranchExist.tag(tagVersion, (err, res) => {
-              if (res) {
-                actualVersionDsUpdate = actualVersionDsUpdateParam;
-              }
+            updateProcessDsDescriptor = new UpdateProcessDescriptor(actualVersionDsUpdate, DS_FEED_URL);
 
-              updateProcessDsDescriptor = new UpdateProcessDescriptor(actualVersionDsUpdate, DS_FEED_URL);
-
-              event.sender.send('request-to-update', {
-                actualVersionDsUpdate,
-                actualVersionGenericUpdate,
-                os: process.platform,
-                arch: process.arch
-              });
+            event.sender.send('request-to-update', {
+              actualVersionDsUpdate,
+              actualVersionGenericUpdate,
+              os: process.platform,
+              arch: process.arch
             });
           } else {
             event.sender.send('request-to-update', {
@@ -325,6 +344,12 @@ function createWindow() {
             });
           }
         }
+      };
+
+      getLatestGithubTag(`github.com/${dsGithubOwner}/${dsGithubRepo}`, (tagError, tagVersion) => {
+        const tagToUpdate = semver.gt(tagVersion, dataPackage.version) ? tagVersion : null;
+
+        requestToUpdate(tagToUpdate);
       });
     });
   });

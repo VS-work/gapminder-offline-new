@@ -117,6 +117,7 @@ export class AutoUpdateComponent implements OnInit {
 
   resetUpdateRequest() {
     this.requestToUpdate = false;
+    this.requestToDatasetUpdate = false;
   }
 
   exitAndUpdate() {

@@ -42,6 +42,7 @@ cd .\app-builds
 call powershell.exe -nologo -noprofile -command "& {Rename-Item 'win-unpacked' 'Gapminder Offline-win64'}"
 
 "C:\Program Files (x86)\Windows Kits\10\bin\x64\signtool.exe" sign /t http://timestamp.comodoca.com/authenticode /f ..\gapminder.pfx /p %1 ".\Gapminder Offline-win64\Gapminder Offline.exe"
+"C:\Program Files (x86)\Windows Kits\10\bin\x64\signtool.exe" sign /t http://timestamp.comodoca.com/authenticode /f ..\gapminder.pfx /p %1 ".\Gapminder Offline-win64\updater-win64.exe"
 
 call powershell.exe -nologo -noprofile -command "& { Add-Type -A 'System.IO.Compression.FileSystem'; [IO.Compression.ZipFile]::CreateFromDirectory('Gapminder Offline-win64', 'Gapminder Offline-win64.zip'); }"
 mkdir "partial\Gapminder Offline-win64"

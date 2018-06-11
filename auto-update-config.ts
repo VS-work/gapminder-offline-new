@@ -6,4 +6,3 @@ export const DS_FEED_VERSION_URL_TEMP =
   'https://raw.githubusercontent.com/open-numbers/ddf--gapminder--systema_globalis/master/datapackage.json';
 export const DS_FEED_URL_TEMP =
   'https://github.com/open-numbers/ddf--gapminder--systema_globalis/archive/v#version#.zip';
-export const DS_TAG_TEMP = 'open-numbers/ddf--gapminder--systema_globalis#v#version#';
