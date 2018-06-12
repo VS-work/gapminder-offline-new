@@ -1,7 +1,7 @@
 sleep 2
 
 if [ -d "cache-app" ]; then
-  cp -R ./cache-app/Gapminder\ Offline.app ../../../..
+  cp -R ./cache-app/Gapminder\ Offline.app ../../..
   rm -rf ./cache-app
 fi
 
@@ -16,4 +16,4 @@ fi
 rm ./update-required
 rm ./updating
 sleep 1
-../../../Contents/MacOS/Gapminder\ Offline &
+../../Contents/MacOS/Gapminder\ Offline &
