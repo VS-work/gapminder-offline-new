@@ -4,8 +4,10 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as fsExtra from 'fs-extra';
 import * as zipdir from 'zip-dir';
-import { app, dialog } from 'electron';
+import { app } from 'electron';
 import { GoogleAnalytics } from './google-analytics';
+
+const dialog = require('electron').dialog;
 
 const packageJSON = require('./package.json');
 const ga = new GoogleAnalytics(packageJSON.googleAnalyticsId, app.getVersion());
