@@ -441,7 +441,7 @@ const isSecondInstance = app.makeSingleInstance((commandLine) => {
 });
 
 if (isSecondInstance) {
-  app.quit();
+  app.exit();
 }
 
 app.on('activate', () => {
