@@ -3,7 +3,7 @@
 #include<windows.h>
 
 int main() {
-  Sleep(3000);
+  Sleep(300);
 
   system("cd cache-app & robocopy . .. /XF updater-win64.exe updater-win32.exe /E & cd .. & rmdir /s /q cache-app & del .\\release-app.zip");
 
