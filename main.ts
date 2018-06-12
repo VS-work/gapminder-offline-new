@@ -78,7 +78,7 @@ class UpdateProcessDescriptor {
 const currentDir = path.resolve(__dirname, '..', '..');
 const dirs = {
   linux: currentDir,
-  darwin: path.resolve(__dirname.replace(/\/app\.asar/, ''), '..', '..'),
+  darwin: path.resolve(__dirname.replace(/\/app\.asar/, '')),
   win32: path.resolve(__dirname.replace(/\/app\.asar/, ''), '..', '..')
 };
 const getTypeByOsAndArch = (os, arch) => {
