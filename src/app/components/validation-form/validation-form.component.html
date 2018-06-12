@@ -38,7 +38,7 @@
 
   <div *ngIf="doesValidationRunning || isResultReady" class="popup-block validating-container">
     <div *ngIf="doesValidationRunning" class="validating-container">
-      <div><img src="../../assets/images/hourglass.gif"></div>
+      <div><img src="assets/images/hourglass.gif"></div>
       <div><b>Dataset is validating:</b> <span>{{statusLine}}</span></div>
       <div><a href="#" (click)="abandon()" style="margin-left: 10px;">Stop validation</a></div>
     </div>
