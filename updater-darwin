@@ -5,7 +5,7 @@ if [ -d "cache-app" ]; then
   rm -rf ./cache-app
 fi
 
-if [ -d "cd cache-ds" ]; then
+if [ -d "cache-ds" ]; then
   cd cache-ds
   mv ddf--gapminder--systema_globalis* ddf--gapminder--systema_globalis
   cp -R ./ddf--gapminder--systema_globalis ..
