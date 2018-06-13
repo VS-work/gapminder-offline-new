@@ -122,7 +122,7 @@ Section "Gapminder Tools Offline" SecMain
   WriteRegStr HKCR "Gapminder.gmstat" "" "Gapminder Statistics File"
   WriteRegStr HKCR "Gapminder.gmstat\shell" "" "open"
   WriteRegStr HKCR "Gapminder.gmstat\shell\open\command" "" '"$INSTDIR\Gapminder Offline.exe" "%1"'
-  WriteRegStr HKCR "Gapminder.gmstat\DefaultIcon" "" "$INSTDIR\resources\app\app-icon.ico"
+  WriteRegStr HKCR "Gapminder.gmstat\DefaultIcon" "" "$INSTDIR\resources\app-icon.ico"
 
   WriteRegStr HKCR "Applications\Gapminder Offline.exe" "" ""
   WriteRegStr HKCR "Applications\Gapminder Offline.exe" "FriendlyAppName" "Gapminder Offline"
