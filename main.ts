@@ -29,9 +29,7 @@ const ga = new GoogleAnalytics(packageJSON.googleAnalyticsId, app.getVersion());
 
 const args = process.argv.slice(1);
 const devMode = process.argv.length > 1 && process.argv.indexOf('dev') > 0;
-// const autoUpdateTestMode = process.argv.length > 1 && process.argv.indexOf('au-test') > 0;
-const autoUpdateTestMode = true;
-
+const autoUpdateTestMode = process.argv.length > 1 && process.argv.indexOf('au-test') > 0;
 const nonAsarAppPath = app.getAppPath().replace(/app\.asar/, '');
 const dataPackage = require(path.resolve(nonAsarAppPath, 'ddf--gapminder--systema_globalis/datapackage.json'));
 const serve = args.some(val => val === '--serve');

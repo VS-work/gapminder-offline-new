@@ -31,6 +31,7 @@ copy .\node_modules\vizabi-mountainchart\build\mountainchart.js .\app-builds\win
 
 copy .\node_modules\vizabi-linechart\build\linechart.css .\app-builds\win-ia32-unpacked\resources\export-template\libs
 copy .\node_modules\vizabi-linechart\build\linechart.js .\app-builds\win-ia32-unpacked\resources\export-template\libs
+copy .\src\app-icon.ico .\app-builds\win-ia32-unpacked\resources
 
 copy .\updater-win32.exe .\app-builds\win-ia32-unpacked\updater-win32.exe
 copy .\invisible.vbs .\app-builds\win-ia32-unpacked\invisible.vbs
