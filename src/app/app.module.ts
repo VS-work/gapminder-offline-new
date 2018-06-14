@@ -25,7 +25,6 @@ import { HomeComponent } from './components/home/home.component';
 import { AutoUpdateComponent } from './components/auto-update/auto-update.component';
 import { TabFreshenerComponent } from './components/tab-freshener/tab-freshener.component';
 import { HamburgerMenuComponent } from './components/menu/hamburger-menu.component';
-import { AdditionalDataComponent } from './components/additional-data/additional-data.component';
 import { VersionsFormComponent } from './components/versions-form/versions-form.component';
 import { ValidationFormComponent } from './components/validation-form/validation-form.component';
 import { DdfDatasetConfigFormComponent } from './components/ddf-dataset-config-form/ddf-dataset-config-form.component';
@@ -51,7 +50,6 @@ export function HttpLoaderFactory(http: HttpClient) {
     AutoUpdateComponent,
     TabFreshenerComponent,
     HamburgerMenuComponent,
-    AdditionalDataComponent,
     VersionsFormComponent,
     ValidationFormComponent,
     DdfDatasetConfigFormComponent,
