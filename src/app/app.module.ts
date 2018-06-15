@@ -5,16 +5,9 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { HttpClientModule, HttpClient } from '@angular/common/http';
-
+import { HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
-
-// NG Translate
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-
 import { ElectronService } from './providers/electron.service';
-
 import { WebviewDirective } from './directives/webview.directive';
 
 import { ModalModule, ProgressbarModule, AlertModule } from 'ngx-bootstrap';
@@ -37,11 +30,6 @@ import { SmartPathSelectorComponent } from './components/smart-path-selector/sma
 import { ChartService } from './components/tabs/chart.service';
 import { MessageService } from './message.service';
 import { FreshenerService } from './components/tab-freshener/freshener.service';
-
-// AoT requires an exported function for factories
-export function HttpLoaderFactory(http: HttpClient) {
-  return new TranslateHttpLoader(http, './assets/i18n/', '.json');
-}
 
 @NgModule({
   declarations: [
@@ -69,13 +57,6 @@ export function HttpLoaderFactory(http: HttpClient) {
     AlertModule.forRoot(),
     ModalModule.forRoot(),
     ProgressbarModule.forRoot(),
-    TranslateModule.forRoot({
-      loader: {
-        provide: TranslateLoader,
-        useFactory: (HttpLoaderFactory),
-        deps: [HttpClient]
-      }
-    }),
     VizabiModule
   ],
   providers: [
