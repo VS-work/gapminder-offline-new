@@ -1,6 +1,7 @@
 import { TestBed, async } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { AppComponent } from './app.component';
+import { TranslateModule } from '@ngx-translate/core';
 import { ElectronService } from './providers/electron.service';
 
 describe('AppComponent', () => {
@@ -13,7 +14,8 @@ describe('AppComponent', () => {
         ElectronService
       ],
       imports: [
-        RouterTestingModule
+        RouterTestingModule,
+        TranslateModule.forRoot()
       ]
     }).compileComponents();
   }));
@@ -24,3 +26,8 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   }));
 });
+
+class TranslateServiceStub {
+  setDefaultLang(lang: string): void {
+  }
+}
