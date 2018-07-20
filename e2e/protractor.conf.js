@@ -1,5 +1,8 @@
 'use strict';
 
+const isWin = require('os').platform() === 'win32';
+const progExtension = isWin ? '.exe' : '';
+
 exports.config = {
   seleniumAddress: 'http://localhost:9515/', // default port for electron-chromedriver
 
@@ -25,7 +28,7 @@ exports.config = {
     {
       browserName: 'chrome',
       chromeOptions: {
-        binary: '/home/vs/projects2/gapminder-offline-new/app-builds/Gapminder Offline-linux/Gapminder Offline', // path to GOffline executable
+        binary: `${__dirname}/../app-builds/Gapminder Offline-linux/Gapminder Offline${progExtension}`,
         args: ['no-sandbox', 'disable-infobars']
       }
     }
