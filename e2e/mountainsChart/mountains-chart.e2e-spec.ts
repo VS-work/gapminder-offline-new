@@ -12,16 +12,16 @@ const slider: Slider = new Slider();
 const commonChartPage: CommonChartPage = new CommonChartPage();
 
 describe('Mountains chart', () => {
-  beforeEach(async() => {
+  beforeEach(async () => {
     await mountainChart.openChart();
   });
-  afterEach(async()=>{
+  afterEach(async () => {
     await commonChartPage.closeTab();
   });
 
   it('text on vertical line at the end of the chart', async () => {
     /**
-     * should check that in 2015, the percentage of people living in the extreme poverty should be 11.5 ± 0.3%,
+     * should check that in 2018, the percentage of people living in the extreme poverty should be 11.5 ± 0.3%,
      * and the world population should be 7.33B(TC19)
      */
     await waitForSliderToBeReady();
@@ -34,14 +34,14 @@ describe('Mountains chart', () => {
     expect(await mountainChart.verticalLine.getText()).toEqual('7.33B');
   });
 
-  it('labels on vertical line in 2015 and in 1800 match', async() => {
+  it('labels on vertical line in 2018 and in 1800 match', async () => {
     /**
-     * should check that in 2015 there is roughly the same amount of people living in the extreme poverty
+     * should check that in 2018 there is roughly the same amount of people living in the extreme poverty
      * as there was in 1800 (830 and 812 Millions)(TC20)
      */
     await mountainChart.hoverMouserOverExtremePovertyTitle();
 
-    expect(await mountainChart.verticalLine.getText()).toEqual('833M');
+    expect(await mountainChart.verticalLine.getText()).toEqual('852M');
 
     await slider.dragToStart();
     await mountainChart.hoverMouserOverExtremePovertyTitle();
@@ -49,7 +49,7 @@ describe('Mountains chart', () => {
     expect(await mountainChart.verticalLine.getText()).toEqual('812M');
   });
 
-  it('Population and name displayed on the top', async() => {
+  it('Population and name displayed on the top', async () => {
     const EC = protractor.ExpectedConditions;
     expect(await mountainChart.yearLabel.isPresent()).toBe(true, 'year label is displayed');
 

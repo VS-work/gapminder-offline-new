@@ -13,7 +13,7 @@ describe('Bubbles chart', () => {
     await bubbleChart.openChart();
   });
 
-  afterEach(async()=>{
+  afterEach(async () => {
     await commonChartPage.closeTab();
   });
 
@@ -56,7 +56,7 @@ describe('Bubbles chart', () => {
      */
     await bubbleChart.hoverUnitedStates();
     expect(await bubbleChart.bubbleLabelOnMouseHover.getText()).toContain('United States');
-    expect(await bubbleChart.axisXValue.getText()).toEqual('53.4k');
+    expect(await bubbleChart.axisXValue.getText()).toEqual('54.9k');
   });
 
   it('only selected bubble get full opacity', async () => {
@@ -152,7 +152,7 @@ describe('Bubbles chart', () => {
      */
     // load bubble chart, switch Y to less time-available indicator. Like number of billionaires or something.
     // Check time slider range, it should be restricted to only a few >years.
-    // Switch Y back to less: time slider should be back to 1800-2015 or what we had at start
+    // Switch Y back to less: time slider should be back to 1800-2018 or what we had at start
     await bubbleChart.changeYaxisValue('Dollar billionaires');
     expect(await slider.getPosition()).toContain('2007');
 
@@ -160,18 +160,18 @@ describe('Bubbles chart', () => {
     expect(await slider.getPosition()).toContain('2007');
 
     await slider.dragToRightEdge();
-    expect(await slider.getPosition()).toContain('2015');
+    expect(await slider.getPosition()).toContain('2018');
   });
 
   it('Change Y-axis value', async () => {
     const axisValue = await bubbleChart.changeYaxisValue('Dollar billionaires');
 
-    expect((await commonChartPage.yAxisBtn.safeGetText()).replace(' ▼','')).toEqual(axisValue);
+    expect((await commonChartPage.yAxisBtn.safeGetText()).replace(' ▼', '')).toEqual(axisValue);
   });
 
   it('Change X-axis value', async () => {
     const axisValue = await bubbleChart.changeXaxisValue('Dollar billionaires');
 
-    expect((await commonChartPage.xAxisBtn.safeGetText()).replace(' ▼','')).toEqual(axisValue);
+    expect((await commonChartPage.xAxisBtn.safeGetText()).replace(' ▼', '')).toEqual(axisValue);
   });
 });

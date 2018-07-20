@@ -1,7 +1,7 @@
-import { LineChart } from "../pageObjects/charts/line-chart.po";
-import { Sidebar } from "../pageObjects/sidebar/sidebar.e2e-component";
-import { Slider } from "../pageObjects/components/slider.e2e-component";
-import { waitUntil } from "../helpers/waitHelper";
+import { LineChart } from '../pageObjects/charts/line-chart.po';
+import { Sidebar } from '../pageObjects/sidebar/sidebar.e2e-component';
+import { Slider } from '../pageObjects/components/slider.e2e-component';
+import { waitUntil } from '../helpers/waitHelper';
 import { CommonChartPage } from '../pageObjects/charts/common-chart.po';
 
 const lineChart: LineChart = new LineChart();
@@ -9,12 +9,13 @@ const sidebar: Sidebar = new Sidebar(lineChart);
 const slider: Slider = new Slider();
 const commonChartPage: CommonChartPage = new CommonChartPage();
 
+// todo: check it. is that bugs?
 describe('Line chart: Sidebar', () => {
   const DEFAULT_COUNTRIES_NUMBER = 4;
   beforeEach(async () => {
     await lineChart.openChart();
   });
-  afterEach(async()=>{
+  afterEach(async () => {
     await commonChartPage.closeTab();
   });
 
@@ -72,5 +73,5 @@ describe('Line chart: Sidebar', () => {
     expect(await lineChart.getLineColor('China')).toEqual(colorFromColorSection, 'line color');
   });
 
-  
+
 });

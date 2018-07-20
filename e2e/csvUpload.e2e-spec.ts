@@ -8,7 +8,7 @@ import { disableAnimations } from './helpers/helper';
 const header: Header = new Header();
 const commonChartPage: CommonChartPage = new CommonChartPage();
 
-fdescribe('Upload CSV: ', () => {
+describe('Upload CSV: ', () => {
   const positiveFilePath = './e2e/additional_files/positive/';
   const negativeFilePath = './e2e/additional_files/negative/';
   const positiveFilesToUpload = fs.readdirSync(positiveFilePath);
@@ -42,5 +42,4 @@ fdescribe('Upload CSV: ', () => {
       await expect($('.vzb-placeholder.vzb-error').isDisplayed()).toBeTruthy();
     });
   }
-
 });

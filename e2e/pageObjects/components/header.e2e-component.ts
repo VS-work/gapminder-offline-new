@@ -3,6 +3,7 @@ import { ElementFinder, browser, element, By, ExpectedConditions as EC } from 'p
 import { _$, _$$, ExtendedElementFinder } from '../../helpers/ExtendedElementFinder';
 import { waitForSpinner } from '../../helpers/helper';
 import { waitUntil } from '../../helpers/waitHelper';
+import { CommonChartPage } from '../charts/common-chart.po';
 
 export class Header {
   private isDesktop: boolean = browser.params.desktop;
@@ -16,8 +17,8 @@ export class Header {
   public timeGoesDown: ExtendedElementFinder = new ExtendedElementFinder(element.all(By.cssContainingText('label', 'Time goes down')).first());
   public timeGoesRight: ExtendedElementFinder = new ExtendedElementFinder(element.all(By.cssContainingText('label', 'Time goes right')).first());
   public upload: ExtendedElementFinder = _$$('.file-upload-result').get(1);
-  // public upload: ElementFinder = _$$('app-smart-path-selector > input').get(2);
   public timeValueSelect: ExtendedElementFinder = _$('select:not(:disabled)');
+  public errorMessageIntro: ExtendedElementFinder = _$('.vzb-error-message-intro');
 
   rootSelector: ExtendedElementFinder = this.isDesktop ? _$('.header') : _$('[class="mobile"]');
   /**
