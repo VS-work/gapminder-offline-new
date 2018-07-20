@@ -13,7 +13,7 @@ if (platform === 'win32') {
 let binary = `${__dirname}/../app-builds/Gapminder Offline-${platform}/Gapminder Offline${progExtension}`;
 
 if (platform === 'darwin') {
-  binary = `${__dirname}/../app-builds/mac/Gapminder Offline.app`;
+  binary = `${__dirname}/../app-builds/mac/Gapminder Offline.app/Contents/MacOS/Gapminder Offline`;
 }
 
 exports.config = {
