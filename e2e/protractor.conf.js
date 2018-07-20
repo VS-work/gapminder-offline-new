@@ -13,7 +13,7 @@ if (platform === 'win32') {
 let binary = `${__dirname}/../app-builds/Gapminder Offline-${platform}/Gapminder Offline${progExtension}`;
 
 if (platform === 'darwin') {
-  let binary = `${__dirname}/../app-builds/mac/Gapminder Offline.app`;
+  binary = `${__dirname}/../app-builds/mac/Gapminder Offline.app`;
 }
 
 exports.config = {
@@ -41,7 +41,7 @@ exports.config = {
     {
       browserName: 'chrome',
       chromeOptions: {
-        binary: `${__dirname}/../app-builds/Gapminder Offline-${platform}/Gapminder Offline${progExtension}`,
+        binary: `${binary}`,
         args: ['no-sandbox', 'disable-infobars']
       }
     }
