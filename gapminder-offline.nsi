@@ -239,6 +239,9 @@ Section "Uninstall"
   DeleteRegKey HKCR "Applications\Gapminder Offline.exe\shell\open"
   DeleteRegKey HKCR "Applications\Gapminder Offline.exe\shell\open\command"
 
+  Delete "$INSTDIR\updating"
+  Delete "$INSTDIR\update-required"
+
 SectionEnd
 
 Function .onInit

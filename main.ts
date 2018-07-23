@@ -19,6 +19,7 @@ import {
   DS_FEED_VERSION_URL_TEMP,
   FEED_VERSION_URL_TEMP,
   FEED_VERSION_URL_TEST_TEMP,
+  FEED_FULL_URL_TEMP,
   FEED_URL_TEMP
 } from './auto-update-config';
 
@@ -98,6 +99,7 @@ const RELEASE_APP_ARCHIVE = 'release-app.zip';
 const RELEASE_DS_ARCHIVE = 'release-ds.zip';
 const FEED_VERSION_URL = autoUpdateTestMode ? FEED_VERSION_URL_TEST_TEMP : FEED_VERSION_URL_TEMP;
 const FEED_URL = FEED_URL_TEMP.replace(/#type#/g, getTypeByOsAndArch(process.platform, process.arch));
+const FEED_FULL_URL = FEED_FULL_URL_TEMP.replace(/#type#/g, getTypeByOsAndArch(process.platform, process.arch));
 const DS_FEED_VERSION_URL = DS_FEED_VERSION_URL_TEMP;
 const DS_FEED_URL = DS_FEED_URL_TEMP;
 const CACHE_APP_DIR = `${dirs[process.platform]}/cache-app`;
@@ -109,6 +111,8 @@ function rollback() {
   try {
     fsExtra.removeSync(CACHE_APP_DIR);
     fsExtra.removeSync(CACHE_DS_DIR);
+    fsExtra.removeSync(UPDATE_PROCESS_FLAG_FILE);
+    fsExtra.removeSync(UPDATE_FLAG_FILE);
   } catch (e) {
     console.log(e);
   }
@@ -305,7 +309,7 @@ function createWindow() {
       }
 
       if (actualVersionGenericUpdate) {
-        if (versionDiffType === 'major' || versionDiffType === 'minor') {
+        if (versionDiffType === 'major') {
           event.sender.send('full-update-request', {
             actualVersionGenericUpdate,
             os: process.platform,
@@ -313,7 +317,13 @@ function createWindow() {
           });
         }
 
-        updateProcessAppDescriptor = new UpdateProcessDescriptor(actualVersionGenericUpdate, FEED_URL);
+        if (versionDiffType === 'minor') {
+          updateProcessAppDescriptor = new UpdateProcessDescriptor(actualVersionGenericUpdate, FEED_FULL_URL);
+        }
+
+        if (versionDiffType === 'patch') {
+          updateProcessAppDescriptor = new UpdateProcessDescriptor(actualVersionGenericUpdate, FEED_URL);
+        }
       }
 
       const [, , , dsGithubOwner, dsGithubRepo] = DS_FEED_VERSION_URL.split('/');
@@ -354,7 +364,7 @@ function createWindow() {
 
   ipc.on('prepare-update', (event, version) => {
     if (version) {
-      updateProcessAppDescriptor = new UpdateProcessDescriptor(version, FEED_URL);
+      updateProcessAppDescriptor = new UpdateProcessDescriptor(version, FEED_FULL_URL);
     }
 
     startUpdate(event);
