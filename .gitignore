@@ -7,7 +7,7 @@
 /dist
 /tmp
 /out-tsc
-/app-builds
+/app-builds/**/*
 main.js
 !src/lib/**/*
 !src/export-template/
