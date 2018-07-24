@@ -129,7 +129,7 @@ export class AutoUpdateComponent implements OnInit {
   }
 
   openURL(url: string) {
-    this.es.shell.openItem(url);
+    this.es.shell.openExternal(url);
   }
 
   cancel() {
