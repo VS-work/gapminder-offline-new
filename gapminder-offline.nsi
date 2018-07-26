@@ -46,6 +46,7 @@ Section "Gapminder Tools Offline" SecMain
 
   SetOutPath "$INSTDIR"
 
+  file "app-builds\Gapminder Offline-${arch}\api-ms-win-core-console-l1-1-0.dll"
   file "app-builds\Gapminder Offline-${arch}\api-ms-win-core-datetime-l1-1-0.dll"
   file "app-builds\Gapminder Offline-${arch}\api-ms-win-core-debug-l1-1-0.dll"
   file "app-builds\Gapminder Offline-${arch}\api-ms-win-core-errorhandling-l1-1-0.dll"
@@ -106,6 +107,7 @@ Section "Gapminder Tools Offline" SecMain
   file "app-builds\Gapminder Offline-${arch}\ucrtbase.dll"
   file "app-builds\Gapminder Offline-${arch}\ui_resources_200_percent.pak"
   file "app-builds\Gapminder Offline-${arch}\vcruntime140.dll"
+  file "app-builds\Gapminder Offline-${arch}\views_resources_200_percent.pak"
   file /r "app-builds\Gapminder Offline-${arch}\resources"
   file /r "app-builds\Gapminder Offline-${arch}\locales"
 
@@ -155,6 +157,7 @@ SectionEnd
 
 Section "Uninstall"
 
+  Delete "$INSTDIR\api-ms-win-core-console-l1-1-0.dll"
   Delete "$INSTDIR\api-ms-win-core-datetime-l1-1-0.dll"
   Delete "$INSTDIR\api-ms-win-core-debug-l1-1-0.dll"
   Delete "$INSTDIR\api-ms-win-core-errorhandling-l1-1-0.dll"
@@ -215,6 +218,7 @@ Section "Uninstall"
   Delete "$INSTDIR\ucrtbase.dll"
   Delete "$INSTDIR\ui_resources_200_percent.pak"
   Delete "$INSTDIR\vcruntime140.dll"
+  Delete "$INSTDIR\views_resources_200_percent.pak"
 
   RMDir /r "$INSTDIR\resources"
   RMDir /r "$INSTDIR\locales"
