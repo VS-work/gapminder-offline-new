@@ -1,8 +1,8 @@
-import { Component, Output, EventEmitter, ChangeDetectorRef, OnDestroy, OnInit } from '@angular/core';
+import { Component, Output, EventEmitter, ChangeDetectorRef, OnInit, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs/Subscription';
 import { ChartService } from '../tabs/chart.service';
 import { MessageService } from '../../message.service';
-import { CLEAR_VALIDATION_FORM, OPEN_NEW_DDF_TAB_FROM_VALIDATOR, ABANDON_VALIDATION } from '../../constants';
-import { Subscription } from 'rxjs/Subscription';
+import { ABANDON_VALIDATION, CLEAR_VALIDATION_FORM, OPEN_NEW_DDF_TAB_FROM_VALIDATOR } from '../../constants';
 import { ElectronService } from '../../providers/electron.service';
 
 interface ChartOption {
@@ -40,6 +40,7 @@ export class ValidationFormComponent implements OnInit, OnDestroy {
   issuesCount = 0;
 
   ddfFolder: string;
+  validator;
   subscription: Subscription;
 
   constructor(
@@ -58,42 +59,6 @@ export class ValidationFormComponent implements OnInit, OnDestroy {
       if (event.message === ABANDON_VALIDATION) {
         this.abandon();
       }
-    });
-
-    this.es.ipcRenderer.on('validation-message', (event: any, message: string) => {
-      this.statusLine = message;
-      this.ref.detectChanges();
-    });
-
-    this.es.ipcRenderer.on('validation-error', (event: any, error: any) => {
-      this.error = error;
-      this.doesValidationRunning = false;
-      this.isResultReady = true;
-      this.ref.detectChanges();
-    });
-
-    this.es.ipcRenderer.on('validation-issue', (event: any, issue: any) => {
-      if (!issue.isWarning) {
-        this.errorCount++;
-      }
-
-      this.issuesCount++;
-
-      if (this.issuesCount <= this.ERRORS_LIMIT) {
-        this.issues.push({
-          desc: issue.type.replace(/\n/g, '<br>'),
-          howToFix: issue.howToFix,
-          details: JSON.stringify(issue.data, null, 2)
-            .replace(/\n/g, '<br>')
-            .replace(/ /g, '&nbsp;')
-        });
-      }
-    });
-
-    this.es.ipcRenderer.on('validation-completed', (event: any, params: any) => {
-      this.doesValidationRunning = params.doesValidationRunning;
-      this.isResultReady = params.isResultReady;
-      this.ref.detectChanges();
     });
   }
 
@@ -129,7 +94,7 @@ export class ValidationFormComponent implements OnInit, OnDestroy {
   }
 
   validate() {
-    if (!this.ddfFolder) {
+    if (!this.ddfFolder || this.doesValidationRunning) {
       return;
     }
 
@@ -141,18 +106,89 @@ export class ValidationFormComponent implements OnInit, OnDestroy {
     this.errorCount = 0;
     this.issuesCount = 0;
 
-    this.es.ipcRenderer.send('start-validation', {
+    const params = {
       createNewDataPackage: this.CREATE_NEW_DATA_PACKAGE,
       dataPackageMode: this.dataPackageMode,
       options: this.getValidatorOptions(),
       ddfFolder: this.ddfFolder
+    };
+    const {exists} = this.es.ddfValidation.getDataPackageInfo(this.ddfFolder);
+
+    if (!exists || (exists && params.dataPackageMode === params.createNewDataPackage)) {
+      const dataPackageCreationParameters = {
+        ddfRootFolder: this.ddfFolder,
+        newDataPackagePriority: true,
+        externalSettings: params.options
+      };
+      this.es.ddfValidation.createDataPackage(dataPackageCreationParameters, message => {
+        this.statusLine = message;
+        this.ref.detectChanges();
+      }, error => {
+        if (error) {
+          this.error = error;
+          this.doesValidationRunning = false;
+          this.isResultReady = true;
+          this.ref.detectChanges();
+
+          return;
+        }
+
+        this.validationProcess();
+      });
+    } else {
+      this.validationProcess();
+    }
+  }
+
+  validationProcess() {
+    this.validator = new this.es.ddfValidation.StreamValidator(this.ddfFolder, this.getValidatorOptions());
+
+    this.validator.onMessage(message => {
+      this.statusLine = message;
+      this.ref.detectChanges();
     });
+
+    this.validator.on('issue', issue => {
+      if (!issue.isWarning) {
+        this.errorCount++;
+      }
+
+      this.issuesCount++;
+
+      if (this.issuesCount <= this.ERRORS_LIMIT) {
+        this.issues.push({
+          desc: issue.type.replace(/\n/g, '<br>'),
+          howToFix: issue.howToFix,
+          details: JSON.stringify(issue.data, null, 2)
+            .replace(/\n/g, '<br>')
+            .replace(/ /g, '&nbsp;')
+        });
+      }
+    });
+
+    this.validator.on('finish', err => {
+      if (err) {
+        this.error = err;
+        this.doesValidationRunning = false;
+        this.isResultReady = true;
+
+      } else {
+        this.doesValidationRunning = false;
+        this.isResultReady = !this.validator.isAbandoned();
+      }
+
+      this.ref.detectChanges();
+    });
+
+    this.es.ddfValidation.validate(this.validator);
   }
 
   abandon() {
     if (this.doesValidationRunning) {
       this.statusLine = ' ... abandoning ...';
-      this.es.ipcRenderer.send('abandon-validation');
+      if (this.validator && this.validator.abandon) {
+        this.validator.abandon();
+      }
     }
   }
 
