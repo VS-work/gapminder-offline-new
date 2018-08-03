@@ -280,7 +280,7 @@ function createWindow() {
         try {
           const config = JSON.parse(body);
 
-          event.sender.send('got-supported-versions', config.modern2.supported, config.modern2.version, app.getVersion());
+          event.sender.send('got-supported-versions', config.modern3.supported, config.modern3.version, app.getVersion());
         } catch (e) {
         }
       }

@@ -47,7 +47,7 @@
     "async-waterfall": "0.1.5",
     "csv-parse": "2.5.0",
     "ddf-validation": "1.18.1",
-    "electron-easy-updater": "0.5.0",
+    "electron-easy-updater": "0.6.0",
     "fs-extra": "7.0.0",
     "git-fetch-pack": "^0.1.1",
     "git-transport-protocol": "0.1.0",
